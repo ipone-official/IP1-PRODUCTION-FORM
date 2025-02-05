@@ -21,7 +21,7 @@
 
     <!-- Table -->
     <v-data-table
-      :headers="headers"
+      :headers="headersListQa"
       :items="listQaReq"
       :search="mSearch"
       class="data-table"
@@ -33,12 +33,17 @@
           <v-toolbar-title class="centered-title">QA REQUEST</v-toolbar-title>
           <v-tooltip text="Refresh" location="bottom" color="blue" text-color="white">
             <template v-slot:activator="{ props }">
-              <v-btn icon variant="text" v-bind="props" @click="getQaList">
+              <v-btn icon variant="text" v-bind="props" @click="gTFormList">
                 <v-icon color="blue">mdi-refresh</v-icon>
               </v-btn>
             </template>
           </v-tooltip>
         </v-toolbar>
+      </template>
+      <template v-slot:item.productionDate="{ item }">
+        <div>
+          {{ item.productionDate ? formatDate(item.productionDate) : "-" }}
+        </div>
       </template>
 
       <template v-slot:item.actions="{ item }">
@@ -46,7 +51,7 @@
           <!-- Edit Tooltip -->
           <v-tooltip text="Edit" location="bottom" color="blue" text-color="white">
             <template v-slot:activator="{ props }">
-              <v-btn icon variant="text" v-bind="props" @click="editItem(item)">
+              <v-btn icon variant="text" v-bind="props" @click="editItemTFormList(item)">
                 <v-icon color="blue">mdi-pencil</v-icon>
               </v-btn>
             </template>
@@ -79,16 +84,21 @@
             <!-- Row 1 -->
             <v-row justify="space-between" align="center">
               <v-col cols="12" md="5">
-                <v-card class="grey-card" outlined>
+                <v-card class="grey-card" outlined v-if="mSelectedReqQa.length != 0">
                   <v-card-text class="text-left">
-                    เลขที่เอกสาร : QA250000001
+                    เลขที่เอกสาร : {{ mSelectedReqQa.formID }}
                   </v-card-text>
                 </v-card>
               </v-col>
               <v-col cols="12" md="5">
                 <v-card class="grey-card" outlined>
                   <v-card-text class="text-left">
-                    ผู้สร้างเอกสาร : {{ user.samAccount }}
+                    ผู้สร้างเอกสาร :
+                    {{
+                      mSelectedReqQa.length != 0
+                        ? mSelectedReqQa.samAccount
+                        : user.samAccount
+                    }}
                   </v-card-text>
                 </v-card>
               </v-col>
@@ -182,7 +192,7 @@
                                 <v-row>
                                   <v-col cols="12" md="12">
                                     <v-autocomplete
-                                      v-model="mcLineprocess"
+                                      v-model="mcMaterial"
                                       :items="iMaterial"
                                       item-title="displayMaterial"
                                       item-value="materialCode"
@@ -387,49 +397,91 @@
                             </v-text-field>
                           </v-col>
                           <v-col cols="12" sm="3">
-                            <v-text-field outlined dense required class="input-field" v-model="mStdWeight">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="mStdWeight"
+                            >
                               <template v-slot:label>
                                 <span style="color: red">*</span>น้ำหนัก (STD)
                               </template>
                             </v-text-field>
                           </v-col>
                           <v-col cols="12" sm="3">
-                            <v-text-field outlined dense required class="input-field" v-model="mBulkUsed">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="mBulkUsed"
+                            >
                               <template v-slot:label>
                                 <span style="color: red">*</span>ปริมาณ Bulk ที่ใช้
                               </template>
                             </v-text-field>
                           </v-col>
                           <v-col cols="12" sm="3">
-                            <v-text-field outlined dense required class="input-field" v-model="mProdPlanEA">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="mProdPlanEA"
+                            >
                               <template v-slot:label>
                                 <span style="color: red">*</span>แผนการผลิต (EA)
                               </template>
                             </v-text-field>
                           </v-col>
                           <v-col cols="12" sm="3">
-                            <v-text-field outlined dense required class="input-field" v-model="mExpectedProdEA">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="mExpectedProdEA"
+                            >
                               <template v-slot:label>
                                 <span style="color: red">*</span>คาดว่าผลิตได้ (EA)
                               </template>
                             </v-text-field>
                           </v-col>
                           <v-col cols="12" sm="3">
-                            <v-text-field outlined dense required class="input-field" v-model="mProdPlanQtyEA">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="mProdPlanQtyEA"
+                            >
                               <template v-slot:label>
                                 <span style="color: red">*</span>จำนวนแผนการผลิต (EA)
                               </template>
                             </v-text-field>
                           </v-col>
                           <v-col cols="12" sm="3">
-                            <v-text-field outlined dense required class="input-field" v-model="mStdTime">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="mStdTime"
+                            >
                               <template v-slot:label>
                                 <span style="color: red">*</span>เวลาบรรจุ STD (DZ/Hr.)
                               </template>
                             </v-text-field>
                           </v-col>
                           <v-col cols="12" sm="3">
-                            <v-text-field outlined dense required class="input-field" v-model="mScale">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="mScale"
+                            >
                               <template v-slot:label>
                                 <span style="color: red">*</span>เครื่องชัง BL
                               </template>
@@ -955,6 +1007,8 @@ import {
   pPreparing,
   gTLineClearance,
   gTPreparing,
+  gTFormList,
+  gTFormListById,
 } from "@/services/apiQa.js";
 import Swal from "sweetalert2";
 
@@ -973,6 +1027,7 @@ export default {
   },
   data() {
     return {
+      mSelectedReqQa: [],
       showSnackbar: false,
       msgSnackbar: "",
       snackbarColor: "yellow",
@@ -1002,16 +1057,31 @@ export default {
           value: "tab-2",
         },
       ],
-      headers: [
+      headersListQa: [
         {
-          title: "Column 1",
+          title: "เลขที่เอกสาร",
           align: "left",
-          key: "column1",
+          key: "formID",
         },
         {
-          title: "Column 2",
+          title: "ไลน์ผลิต",
           align: "left",
-          key: "column2",
+          key: "lineProcessName",
+        },
+        {
+          title: "ผลิตภัณฑ์",
+          align: "left",
+          key: "materialDesc",
+        },
+        {
+          title: "ผู้สร้างเอกสาร",
+          align: "left",
+          key: "samAccount",
+        },
+        {
+          title: "วันที่ผลิต",
+          align: "left",
+          key: "productionDate",
         },
         {
           title: "Actions",
@@ -1021,16 +1091,7 @@ export default {
         },
       ],
 
-      listQaReq: [
-        {
-          column1: "column1",
-          column2: "column1",
-        },
-        {
-          column1: "column2",
-          column2: "column2",
-        },
-      ],
+      listQaReq: [],
       headersDProduct: [
         {
           title: "รายละเอียด",
@@ -1091,7 +1152,7 @@ export default {
       iVerifyProduct: [],
       mLineprocess: "",
       iLineprocess: [],
-      mcLineprocess: "",
+      mcMaterial: "",
       mMaterial: "",
       iMaterial: [],
       mProblemResolve: "",
@@ -1109,14 +1170,16 @@ export default {
       mStdTime: 0,
       mStdWeight: 0,
       mBulkUsed: "",
-      mScale: ""
+      mScale: "",
+      mTLineClearance: [],
+      mTPreparing: []
     };
   },
   created() {
     this.gLineProcess();
     this.gVendor();
     this.gMaterialMaster();
-    this.gTReasonDetail("QA250000001");
+    this.gTFormList();
   },
   watch: {
     mLineprocess(val) {
@@ -1150,6 +1213,19 @@ export default {
     },
   },
   methods: {
+    async gTFormList() {
+      this.isLoading = true;
+      this.listQaReq = [];
+      try {
+        const response = await gTFormList();
+        this.listQaReq = response.results;
+      } catch (e) {
+        console.log(e);
+      } finally {
+        // ปิดการแสดงผล Loading ในทุกกรณี
+        this.isLoading = false;
+      }
+    },
     selectAllPreparing(value) {
       this.preparingItem.forEach((item) => {
         item.selected = value;
@@ -1161,7 +1237,6 @@ export default {
       });
     },
     async deleteItemProductDetail(item) {
-      console.log(item, "item");
       this.dialog = false;
       Swal.fire({
         html: `คุณแน่ใจหรือไม่ว่าต้องการลบรายการ <br> <strong>${item.reasonHeader}</strong> : <strong>${item.reasonDesc}</strong>?`,
@@ -1179,7 +1254,7 @@ export default {
               fileName: item.filename,
             };
             await pDeleteFileBatchNo(init);
-            this.gTReasonDetail("QA250000001");
+            this.gTReasonDetail(this.mSelectedReqQa.formID);
             this.dialog = true;
           } catch (e) {
             console.log(e);
@@ -1196,7 +1271,7 @@ export default {
       try {
         await pUploadFileBatchNo(
           this.FileBatch,
-          "QA250000001",
+          this.mSelectedReqQa.formID,
           this.mLineprocess.lineProcessID,
           this.mReasonDetail.reasonID,
           this.mReasonDetailItem.reasonDescID,
@@ -1204,7 +1279,7 @@ export default {
           this.mVendor.vendorDesc,
           this.user.empId
         );
-        this.gTReasonDetail("QA250000001");
+        this.gTReasonDetail(this.mSelectedReqQa.formID);
       } catch (e) {
         console.log(e);
       } finally {
@@ -1217,6 +1292,32 @@ export default {
       try {
         const response = await gTReasonDetail(val);
         this.listDProduct = response.results;
+      } catch (e) {
+        console.log(e);
+      } finally {
+        // ปิดการแสดงผล Loading ในทุกกรณี
+        this.isLoading = false;
+      }
+    },
+    async gTLineClearance(val) {
+      this.isLoading = true;
+      this.mTLineClearance = [];
+      try {
+        const response = await gTLineClearance(val);
+        this.mTLineClearance = response.results;
+      } catch (e) {
+        console.log(e);
+      } finally {
+        // ปิดการแสดงผล Loading ในทุกกรณี
+        this.isLoading = false;
+      }
+    },
+    async gTPreparing(val) {
+      this.isLoading = true;
+      this.mTPreparing = [];
+      try {
+        const response = await gTPreparing(val);
+        this.mTPreparing = response.results;
       } catch (e) {
         console.log(e);
       } finally {
@@ -1373,38 +1474,164 @@ export default {
       this.selectedImage = imageUrl; // ตั้งค่ารูปภาพที่เลือก
       this.dialogPicture = true; // เปิด dialogPicture
     },
-    getQaList() {},
-    editItem() {},
+    async editItemTFormList(item) {
+      this.dialog = true;
+      this.mSelectedReqQa = item;
+      await this.gTReasonDetail(this.mSelectedReqQa.formID);
+      await this.gTLineClearance(this.mSelectedReqQa.formID);
+      await this.gTPreparing(this.mSelectedReqQa.formID);
+      console.log(this.mTLineClearance, "mTLineClearance");
+      console.log(this.mTPreparing, "mTPreparing");
+      if(this.mTLineClearance.length != 0) {
+        this.mcMaterial = {
+          materialCode: this.mTLineClearance.material,
+          displayMaterial: `${this.mTLineClearance.material} : ${this.mTLineClearance.materialDesc}`
+        }
+      }
+      this.mLineprocess = {
+        lineProcessID: item.lineProcessID,
+        lineProcessName: item.lineProcessName,
+      };
+      this.mMaterial = {
+        materialCode: item.materialCode,
+        displayMaterial: `${item.materialCode} : ${item.materialDesc}`,
+        materialDescriptionTH: item.materialDesc,
+        hgdesclV5: item.materialColor,
+        hglV7: item.materialSize,
+        hglV3: item.materialCategory,
+      };
+      this.mQtyEA = item.qtyEA;
+      this.mProdPlanEA = item.prodPlanEA;
+      this.mProdPlanQtyEA = item.prodPlanQtyEA;
+      this.mExpectedProdEA = item.expectedProdEA;
+      this.mStdTime = item.stdTime;
+      this.mStdWeight = item.stdWeight;
+      this.mBulkUsed = item.bulkUsed;
+      this.mScale = item.scale;
+      this.mProductionDate = item.productionDate;
+      this.mInspectionDate = item.checkIN;
+      this.mProblemResolve = item.remark;
+    },
     deleteItem() {},
     resetForm() {
       this.dialog = false;
     },
     async submitForm() {
-      const init = {
-        formID: "",
-        lineProcessID: this.mLineprocess.lineProcessID,
-        userID: this.user.empId,
-        materialCode: this.mMaterial.materialCode,
-        materialDesc: this.mMaterial.materialDescriptionTH,
-        materialColor: this.mMaterial.hgdesclV5,
-        materialSize: this.mMaterial.hglV7,
-        materialCategory: this.mMaterial.hglV3,
-        qtyEA: this.mQtyEA,
-        prodPlanEA: this.mProdPlanEA,
-        prodPlanQtyEA: this.mProdPlanQtyEA,
-        expectedProdEA: this.mExpectedProdEA,
-        stdTime: this.mStdTime,
-        stdWeight: this.mStdWeight,
-        bulkUsed: this.mBulkUsed,
-        scale: this.mScale,
-        productionDate: this.mProductionDate,
-        checkIN: this.mInspectionDate,
-        checkOut: "",
-        status: "",
-        remark: this.mProblemResolve,
-        employeeID: this.user.empId,
-      };
-      const response = await pFormList(init);
+      this.isLoading = true;
+      try {
+        const init = {
+          formID: this.mSelectedReqQa.length == 0 ? "" : this.mSelectedReqQa.formID,
+          lineProcessID: this.mLineprocess.lineProcessID,
+          userID:
+            this.mSelectedReqQa.length == 0
+              ? this.user.empId
+              : this.mSelectedReqQa.userID,
+          materialCode: this.mMaterial.materialCode,
+          materialDesc: this.mMaterial.materialDescriptionTH,
+          materialColor: this.mMaterial.hgdesclV5,
+          materialSize: this.mMaterial.hglV7,
+          materialCategory: this.mMaterial.hglV3,
+          qtyEA: this.mQtyEA,
+          prodPlanEA: this.mProdPlanEA,
+          prodPlanQtyEA: this.mProdPlanQtyEA,
+          expectedProdEA: this.mExpectedProdEA,
+          stdTime: this.mStdTime,
+          stdWeight: this.mStdWeight,
+          bulkUsed: this.mBulkUsed,
+          scale: this.mScale,
+          productionDate: this.mProductionDate,
+          checkIN: this.mInspectionDate,
+          checkOut: "",
+          status: "",
+          remark: this.mProblemResolve,
+          employeeID: this.user.empId,
+        };
+        const response = await pFormList(init);
+
+        if (this.mcMaterial.length != 0) {
+          const init = {
+            formID: this.mSelectedReqQa.length == 0 ? "" : this.mSelectedReqQa.formID,
+            lineProcessID: this.mLineprocess.lineProcessID,
+            lineProcessName: this.mLineprocess.lineProcessName,
+            material: this.mcMaterial.materialCode,
+            materialDesc: this.mcMaterial.materialDescriptionTH,
+            updateBy: this.user.empId,
+            details: [], // ✅ เพิ่ม details เป็นอีกฟิลด์
+          };
+
+          for (let index = 0; index < this.clearanceItem.length; index++) {
+            init.details.push({
+              reasonClearID: this.clearanceItem[index].reasonClearID, // ✅ ต้องใช้ index
+              reasonClearDesc: this.clearanceItem[index].reasonClearDesc,
+              detect:
+                this.clearanceItem[index].selected == null
+                  ? ""
+                  : this.clearanceItem[index].selected,
+            });
+          }
+          await pLineClearance(init);
+        }
+
+        if (this.preparingItem.length != 0) {
+          const init = {
+            formID: this.mSelectedReqQa.length == 0 ? "" : this.mSelectedReqQa.formID,
+            lineProcessID: this.mLineprocess.lineProcessID,
+            updateBy: this.user.empId,
+            details: [],
+          };
+          for (let index = 0; index < this.preparingItem.length; index++) {
+            init.details.push({
+              reasonPreparingID: this.preparingItem[index].reasonPreparingID, // ✅ ต้องใช้ index
+              reasonPreparingDesc: this.preparingItem[index].reasonPreparingDesc,
+              detect:
+                this.preparingItem[index].selected == null
+                  ? ""
+                  : this.preparingItem[index].selected,
+            });
+          }
+          await pPreparing(init);
+        }
+
+        this.dialog = false;
+        Swal.fire({
+          html: `Successfully Form ID : ${response.formID}`,
+          icon: "success",
+          showCancelButton: false,
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            //
+          }
+        });
+      } catch (e) {
+        this.dialog = false; // ปิด dialog ชั่วคราว
+        Swal.fire({
+          text: "500 Internal server error",
+          icon: "error",
+          showCancelButton: false,
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        }).then(() => {
+          this.dialog = true; // เปิด dialog กลับ
+        });
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    formatDate(dateStr) {
+      // ตรวจสอบว่าข้อมูลมีความยาวที่ถูกต้อง
+      if (dateStr.length !== 8) {
+        throw new Error("Invalid date format");
+      }
+
+      // แยกส่วนของวันที่
+      const year = dateStr.slice(0, 4); // ปี
+      const month = dateStr.slice(4, 6); // เดือน
+      const day = dateStr.slice(6, 8); // วัน
+
+      // จัดรูปแบบวันที่
+      return `${day}/${month}/${year}`;
     },
   },
 };

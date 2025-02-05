@@ -260,12 +260,9 @@ export const gVendor = async () => {
       }
   
       // ส่งคำขอ post พร้อม Body
-      const response = await api.post(`QA/v1/pPreparing`, {
-        data: data, // ส่งข้อมูลใน Body
-        headers: {
-          "Content-Type": "application/json", // กำหนด Content-Type
-        },
-      });
+      const response = await api.post(`QA/v1/pPreparing`, 
+        data, // ส่งข้อมูลใน Body
+      );
   
       return response.data; // ส่งคืนข้อมูลเมื่อสำเร็จ
     } catch (error) {
@@ -282,12 +279,9 @@ export const gVendor = async () => {
       }
   
       // ส่งคำขอ post พร้อม Body
-      const response = await api.post(`QA/v1/pLineClearance`, {
-        data: data, // ส่งข้อมูลใน Body
-        headers: {
-          "Content-Type": "application/json", // กำหนด Content-Type
-        },
-      });
+      const response = await api.post(`QA/v1/pLineClearance`, 
+         data, // ส่งข้อมูลใน Body 
+        );
   
       return response.data; // ส่งคืนข้อมูลเมื่อสำเร็จ
     } catch (error) {
@@ -305,16 +299,51 @@ export const gVendor = async () => {
       }
   
       // ส่งคำขอ post พร้อม Body
-      const response = await api.post(`QA/v1/pFormList`, {
-        data: data, // ส่งข้อมูลใน Body
-        headers: {
-          "Content-Type": "application/json", // กำหนด Content-Type
-        },
-      });
+      const response = await api.post(`QA/v1/pFormList`, 
+        data, // ส่งข้อมูลใน Body
+      );
   
       return response.data; // ส่งคืนข้อมูลเมื่อสำเร็จ
     } catch (error) {
       console.error("Error in pFormList:", error);
       throw error; // ส่งข้อผิดพลาดกลับไปยังผู้เรียก
+    }
+  };
+
+  export const gTFormList = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessTokenQa");
+      // ตรวจสอบว่า accessToken มีค่าหรือไม่
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
+      const response = await api.get(
+        `QA/v1/gTFormList`,
+      );
+  
+      return response.data;
+    } catch (error) {
+      console.error('Error in gTFormList:', error);
+      throw error;
+    }
+  };
+
+  export const gTFormListById = async (FormID) => {
+    try {
+      const accessToken = localStorage.getItem("accessTokenQa");
+      // ตรวจสอบว่า accessToken มีค่าหรือไม่
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
+      const response = await api.get(
+        `QA/v1/gTFormListById?FormID=${FormID}`,
+      );
+  
+      return response.data;
+    } catch (error) {
+      console.error('Error in gTFormListById:', error);
+      throw error;
     }
   };
