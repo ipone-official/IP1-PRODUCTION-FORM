@@ -52,7 +52,7 @@ export default {
   name: "App",
   data() {
     return {
-      isDrawerOpen: true,
+      isDrawerOpen: false,
       isLoading: false,
     };
   },

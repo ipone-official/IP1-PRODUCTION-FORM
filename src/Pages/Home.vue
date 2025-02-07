@@ -45,6 +45,11 @@
           {{ item.productionDate ? formatDate(item.productionDate) : "-" }}
         </div>
       </template>
+      <template v-slot:item.checkIN="{ item }">
+        <div>
+          {{ item.checkIN ? formatDate(item.checkIN) : "-" }}
+        </div>
+      </template>
 
       <template v-slot:item.actions="{ item }">
         <div class="action-buttons">
@@ -109,7 +114,7 @@
                 <v-sheet class="tab-container" elevation="3" rounded="lg">
                   <v-tabs
                     v-model="tab"
-                    :items="tabs"
+                    :items="filteredTabs"
                     align-tabs="center"
                     color="#007fc4"
                     height="50"
@@ -127,7 +132,7 @@
                     <template v-slot:item="{ item }">
                       <v-tabs-window-item :value="item.value" class="pa-4">
                         <!-- Tab 1 Content -->
-                        <v-row v-if="tab === 'tab-1'" dense>
+                        <v-row v-if="tab === 'Home'" dense>
                           <v-col cols="12" sm="3">
                             <v-autocomplete
                               v-model="mLineprocess"
@@ -179,7 +184,7 @@
                             />
                           </v-col>
 
-                          <v-row>
+                          <v-row v-if="mLineprocess.length != 0">
                             <!-- left Panel -->
                             <v-col cols="12" md="6">
                               <div class="panel left-panel">
@@ -207,7 +212,10 @@
                                     </v-autocomplete>
                                   </v-col>
                                 </v-row>
-                                <v-row class="d-flex justify-center">
+                                <v-row
+                                  class="d-flex justify-center"
+                                  v-if="mcMaterial.length != 0"
+                                >
                                   <v-col
                                     cols="12"
                                     sm="5"
@@ -219,7 +227,7 @@
                                       block
                                       @click="selectAllClearance('Y')"
                                     >
-                                      เลือก ผ่าน ทั้งหมด
+                                      ผ่าน ทั้งหมด
                                     </v-btn>
                                   </v-col>
                                   <v-col
@@ -233,7 +241,7 @@
                                       block
                                       @click="selectAllClearance('N')"
                                     >
-                                      เลือก ไม่ผ่าน ทั้งหมด
+                                      ไม่ผ่าน ทั้งหมด
                                     </v-btn>
                                   </v-col>
                                 </v-row>
@@ -241,6 +249,7 @@
                                   v-for="(item, index) in clearanceItem"
                                   :key="item.reasonClearID"
                                   class="align-center no-gutters py-1"
+                                  v-show="mcMaterial.length != 0"
                                 >
                                   <!-- ข้อความ -->
                                   <v-col
@@ -310,7 +319,7 @@
                                       block
                                       @click="selectAllPreparing('Y')"
                                     >
-                                      เลือก ผ่าน ทั้งหมด
+                                      ผ่าน ทั้งหมด
                                     </v-btn>
                                   </v-col>
                                   <v-col
@@ -324,7 +333,7 @@
                                       block
                                       @click="selectAllPreparing('N')"
                                     >
-                                      เลือก ไม่ผ่าน ทั้งหมด
+                                      ไม่ผ่าน ทั้งหมด
                                     </v-btn>
                                   </v-col>
                                 </v-row>
@@ -381,7 +390,7 @@
                             </v-col>
                           </v-row>
                         </v-row>
-                        <v-row v-else-if="tab === 'tab-2'" dense>
+                        <v-row v-else-if="tab === 'Detail'" dense>
                           <v-col cols="12" sm="3">
                             <v-text-field
                               outlined
@@ -389,10 +398,11 @@
                               required
                               prepend-inner-icon="mdi-weight-kilogram"
                               class="input-field"
-                              v-model="mQtyEA"
+                              v-model="mWeightPacking"
                             >
                               <template v-slot:label>
-                                <span style="color: red">*</span>น้ำหนักบรรจุส่วนประกอบ
+                                <span style="color: red">*</span
+                                >น้ำหนักภาชนะบรรจุและส่วนประกอบ
                               </template>
                             </v-text-field>
                           </v-col>
@@ -497,7 +507,7 @@
                                 >
                                 <h3 class="header-title">รายละเอียดบรรจุภัณฑ์</h3>
                               </div>
-                              <v-row>
+                              <v-row dense class="d-flex text-wrap py-0">
                                 <v-col cols="12" md="3">
                                   <v-autocomplete
                                     v-model="mReasonDetail"
@@ -536,20 +546,19 @@
                                   <v-autocomplete
                                     v-model="mVendor"
                                     :items="iVendor"
-                                    item-title="vendorDesc"
+                                    item-title="displayVendor"
                                     item-value="vendorNo"
                                     outlined
                                     dense
+                                    clearable
                                     return-object
                                     class="filter-select input-field"
                                     :readonly="viewOnly"
                                   >
-                                    <template v-slot:label>
-                                      <span style="color: red">*</span> บริษัท
-                                    </template>
+                                    <template v-slot:label> บริษัท </template>
                                   </v-autocomplete>
                                 </v-col>
-                                <v-col cols="10" sm="3">
+                                <v-col cols="11" sm="3">
                                   <v-file-input
                                     v-model="FileBatch"
                                     label="อัพโหลด Batch No."
@@ -644,15 +653,21 @@
                               </div>
                               <v-row class="align-center justify-space-between">
                                 <!-- คอลัมน์แสดงหัวข้อ -->
-                                <v-col cols="12" sm="5">
+                                <v-col cols="12" sm="7">
                                   <span class="current-date-label">วันเวลาปัจจุบัน</span>
                                 </v-col>
 
-                                <v-col cols="11" sm="6">
-                                  <DateTimePicker v-model="selectedDateTime" />
+                                <v-col cols="11" sm="4">
+                                  <DateTimePicker v-model:value="selectedDateTime" />
                                 </v-col>
 
-                                <v-col cols="1" sm="1" xs="12" class="text-right">
+                                <v-col
+                                  cols="2"
+                                  sm="1"
+                                  xs="12"
+                                  class="text-right"
+                                  v-show="!mCreateOnly"
+                                >
                                   <v-tooltip
                                     text="เพิ่มรอบเวลาตรวจสอบ"
                                     location="bottom"
@@ -664,7 +679,7 @@
                                         icon
                                         variant="text"
                                         v-bind="props"
-                                        @click="plus(item)"
+                                        @click="plusTimeSlot(selectedDateTime)"
                                       >
                                         <v-icon color="primary"
                                           >mdi-plus-circle-outline</v-icon
@@ -675,25 +690,31 @@
                                 </v-col>
                               </v-row>
                               <v-row>
-                                <v-col cols="12" sm="12">
+                                {{ selectedTabTime }} //
+                                {{ selectedItemsTime }}
+                                <v-col cols="12" sm="12" v-if="tabsTime.length != 0">
                                   <v-sheet elevation="6">
                                     <v-tabs
+                                      v-model="selectedTabTime"
+                                      :items="tabsTime"
                                       bg-color="indigo"
                                       next-icon="mdi-arrow-right-bold-box-outline"
                                       prev-icon="mdi-arrow-left-bold-box-outline"
                                       show-arrows
                                     >
-                                      <v-tab
-                                        v-for="i in 30"
-                                        :key="i"
-                                        :text="`Item ${i}`"
-                                      ></v-tab>
+                                      <template v-slot:tab="{ item }">
+                                        <v-tab :key="item.value" :value="item.value">
+                                          <v-icon left>{{ item.icon }}</v-icon>
+                                          <span v-html="item.formattedText"></span>
+                                          <!-- ✅ ใช้ v-html เพื่อขึ้นบรรทัดใหม่ -->
+                                        </v-tab>
+                                      </template>
                                     </v-tabs>
                                   </v-sheet>
                                 </v-col>
                               </v-row>
 
-                              <v-row>
+                              <v-row v-if="selectedTabTime">
                                 <v-col cols="12" md="8" sm="8" xs="12">
                                   <v-row class="d-flex justify-center">
                                     <v-col
@@ -705,9 +726,9 @@
                                       <v-btn
                                         color="primary"
                                         block
-                                        @click="selectAllPreparing('Y')"
+                                        @click="selectAllVerifyProduct('Y')"
                                       >
-                                        เลือก ผ่าน ทั้งหมด
+                                        ผ่าน ทั้งหมด
                                       </v-btn>
                                     </v-col>
                                     <v-col
@@ -719,9 +740,9 @@
                                       <v-btn
                                         color="red"
                                         block
-                                        @click="selectAllPreparing('N')"
+                                        @click="selectAllVerifyProduct('N')"
                                       >
-                                        เลือก ไม่ผ่าน ทั้งหมด
+                                        ไม่ผ่าน ทั้งหมด
                                       </v-btn>
                                     </v-col>
                                   </v-row>
@@ -757,6 +778,7 @@
                                         inline
                                         class="d-flex flex-nowrap gap-3"
                                         density="compact"
+                                        @change="handleSelectionChange(item)"
                                       >
                                         <v-radio
                                           color="primary"
@@ -853,7 +875,7 @@
                 </v-sheet>
               </v-col>
               <!-- สรุปผลการผลิต -->
-              <v-col cols="12">
+              <v-col cols="12" v-if="mSelectedReqQa.length != 0">
                 <v-card class="panel" outlined>
                   <!-- Header -->
                   <v-card-title class="header">
@@ -949,9 +971,27 @@
         </v-card-text>
 
         <!-- Actions -->
-        <v-card-actions class="dialog-actions">
-          <v-btn color="success" large @click="submitForm">✨ บันทึก ✨</v-btn>
-          <v-btn color="error" text @click="resetForm">ยกเลิก</v-btn>
+        <v-card-actions class="dialog-actions justify-center mb-3">
+          <!-- ✅ เพิ่ม mb-4 -->
+          <v-btn
+            color="success"
+            large
+            elevation="6"
+            class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
+            @click="submitForm"
+          >
+            <v-icon left>mdi-check-circle-outline</v-icon> บันทึก
+          </v-btn>
+
+          <v-btn
+            color="red darken-3"
+            large
+            elevation="6"
+            class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
+            @click="resetForm"
+          >
+            <v-icon left>mdi-close-circle-outline</v-icon> ยกเลิก
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -1009,8 +1049,12 @@ import {
   gTPreparing,
   gTFormList,
   gTFormListById,
+  pProblemRandomDetect,
+  pProblemRandomDetectWeight,
+  gTProblemRandomDetact,
 } from "@/services/apiQa.js";
 import Swal from "sweetalert2";
+import { isEmpty } from "lodash";
 
 export default {
   name: "HomePage",
@@ -1035,7 +1079,6 @@ export default {
       clearanceItem: [],
       selectedDateTime: new Date(),
       FileBatch: [],
-      mcRadioPreparing: null,
       mProductionDate: "",
       mInspectionDate: "",
       dialog: false,
@@ -1044,19 +1087,20 @@ export default {
       //   model picture Batch No
       dialogPicture: false,
       selectedImage: "",
-      tab: "tab-1",
+      tab: "Detail",
       tabs: [
         {
           icon: "mdi-head-lightbulb-outline",
           text: "หน้าแรก",
-          value: "tab-1",
+          value: "Home",
         },
         {
           icon: "mdi-file-document-edit-outline",
           text: "รายละเอียด",
-          value: "tab-2",
+          value: "Detail",
         },
       ],
+      tabsTime: [],
       headersListQa: [
         {
           title: "เลขที่เอกสาร",
@@ -1082,6 +1126,11 @@ export default {
           title: "วันที่ผลิต",
           align: "left",
           key: "productionDate",
+        },
+        {
+          title: "วันที่ตรวจสอบ",
+          align: "left",
+          key: "checkIN",
         },
         {
           title: "Actions",
@@ -1163,7 +1212,7 @@ export default {
       mReasonDetail: "",
       iReasonDetailItem: [],
       mReasonDetailItem: "",
-      mQtyEA: 0,
+      mWeightPacking: 0,
       mProdPlanEA: 0,
       mProdPlanQtyEA: 0,
       mExpectedProdEA: 0,
@@ -1172,7 +1221,10 @@ export default {
       mBulkUsed: "",
       mScale: "",
       mTLineClearance: [],
-      mTPreparing: []
+      mTPreparing: [],
+      selectedTabTime: null,
+      selectedItemsTime: [],
+      mCreateOnly: false,
     };
   },
   created() {
@@ -1181,7 +1233,20 @@ export default {
     this.gMaterialMaster();
     this.gTFormList();
   },
+  computed: {
+    filteredTabs() {
+      return this.tabs.filter((tab) => {
+        if (tab.value === "Detail") {
+          return this.mSelectedReqQa.length !== 0; // ✅ แสดง "รายละเอียด" เมื่อ mSelectedReqQa มีค่า
+        }
+        return true; // ✅ แสดง "หน้าแรก" เสมอ
+      });
+    },
+  },
   watch: {
+    // selectedTabTime(val){
+
+    // },
     mLineprocess(val) {
       console.log(val, "mLineprocess");
       if (val.length === 0) return "Unknow";
@@ -1193,26 +1258,86 @@ export default {
     mReasonDetail(val) {
       // ตรวจสอบถ้า val ไม่มีค่า หรือความยาวเป็น 0 ให้คืนค่า "Unknown"
       if (!val || val.length === 0) return "Unknown";
-
       // กรองข้อมูลใน iRawReasonDetail ด้วย reasonID
       const filteredItems = this.iRawReasonDetail.filter(
         (item) => item.reasonID === val.reasonID
       );
-
       // ถ้าหาไม่เจอ ให้คืนค่า "Unknown"
       if (filteredItems.length === 0) {
         this.iReasonDetailItem = []; // อัปเดต iReasonDetailItem เป็นค่าว่าง
         return "Unknown";
       }
-
       // อัปเดต iReasonDetailItem ด้วยรายการที่กรองได้
       this.iReasonDetailItem = filteredItems;
-
       // คืนค่ารายการ reasonDesc (สามารถปรับได้ตามความต้องการ)
       return filteredItems.map((item) => item.reasonDesc).join(", ");
     },
   },
   methods: {
+    handleSelectionChange(item) {
+  const timestamp = this.selectedTabTime; // ใช้เวลาที่เลือก
+  const existingIndex = this.selectedItemsTime.findIndex(
+    (i) => i.problemDetectID === item.problemDetectID && i.DateTime === timestamp
+  );
+
+  if (existingIndex !== -1) {
+    // ✅ ถ้ามี timestamp เดิมอยู่แล้ว ไม่ต้องอัปเดตค่า
+    this.selectedItemsTime[existingIndex].selected = item.selected;
+  } else {
+    // ✅ ถ้าไม่มี timestamp เดิม ให้ใช้ค่าจาก selectedItemsTime ที่ตรงกับ timestamp
+    const existingItem = this.selectedItemsTime.find((i) => i.DateTime === timestamp);
+    
+    const updatedItem = existingItem
+      ? { ...existingItem, ...item, timestamp } // ใช้ค่าเดิมจาก selectedItemsTime
+      : { ...item, timestamp }; // ใช้ค่าจาก item ที่รับมา ถ้าไม่มีค่าเก่าใน selectedItemsTime
+
+    this.selectedItemsTime.push(updatedItem);
+  }
+},
+
+    formatDateTime(date) {
+      if (!(date instanceof Date) || isNaN(date)) return "-";
+
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+
+      return {
+        date: `${day}/${month}/${year}`, // ✅ วันที่
+        time: `${hours}:${minutes}`, // ✅ เวลา
+      };
+    },
+    plusTimeSlot(minutesToAdd) {
+      const dateExample = new Date(minutesToAdd);
+      const formatted = this.formatDateTime(dateExample);
+      const newTab = {
+        icon: "mdi-clock-outline",
+        text: formatted.date,
+        value: formatted.date + " " + formatted.time,
+        role: "time",
+        formattedText: `${formatted.date}<br>${formatted.time}`,
+      };
+
+      this.tabsTime.push(newTab);
+
+      this.selectedTabTime = newTab.value;
+      this.gRandomDetect(this.mLineprocess.lineProcessID);
+      this.selectedItemsTime = this.iVerifyProduct.map((item) => ({
+        ...item,
+        DateTime: formatted.date + " " + formatted.time,
+        Date: this.FormatDate(formatted.date),
+        Time: formatted.time,
+        Role: "ทดสอบ",
+      }));
+      this.mCreateOnly = true;
+    },
+    FormatDate(val) {
+      if (!val) return "Unknow";
+      const date = val.split("/");
+      return `${date[2]}${date[1]}${date[0]}`;
+    },
     async gTFormList() {
       this.isLoading = true;
       this.listQaReq = [];
@@ -1233,6 +1358,16 @@ export default {
     },
     selectAllClearance(value) {
       this.clearanceItem.forEach((item) => {
+        item.selected = value;
+      });
+    },
+    selectAllVerifyProduct(value) {
+      this.selectedItemsTime.forEach((item) => {
+        if (item.DateTime === this.selectedTabTime) {
+          item.selected = value;
+        }
+      });
+      this.iVerifyProduct.forEach((item) => {
         item.selected = value;
       });
     },
@@ -1267,6 +1402,15 @@ export default {
       });
     },
     async plusProduct() {
+      if (isEmpty(this.mReasonDetail)) {
+        return this.showError("กรุณาเลือกประเภทรายละเอียด");
+      }
+      if (isEmpty(this.mReasonDetailItem)) {
+        return this.showError("กรุณาเลือกรายการ");
+      }
+      if (this.FileBatch == null) {
+        return this.showError("กรุณาเลือกอัพโหลด Batch No.");
+      }
       this.isLoading = true;
       try {
         await pUploadFileBatchNo(
@@ -1275,14 +1419,31 @@ export default {
           this.mLineprocess.lineProcessID,
           this.mReasonDetail.reasonID,
           this.mReasonDetailItem.reasonDescID,
-          this.mVendor.vendorNo,
-          this.mVendor.vendorDesc,
+          this.mVendor.vendorNo || "",
+          this.mVendor.vendorDesc || "",
           this.user.empId
         );
         this.gTReasonDetail(this.mSelectedReqQa.formID);
+        this.mReasonDetail = "";
+        this.mReasonDetailItem = "";
+        this.mVendor = "";
+        this.FileBatch = null;
       } catch (e) {
         console.log(e);
       } finally {
+        this.isLoading = false;
+      }
+    },
+    async gTFormListById(val) {
+      this.isLoading = true;
+      try {
+        const response = await gTFormListById(val);
+        this.dialog = true;
+        return response.results[0];
+      } catch (e) {
+        console.log(e);
+      } finally {
+        // ปิดการแสดงผล Loading ในทุกกรณี
         this.isLoading = false;
       }
     },
@@ -1374,6 +1535,7 @@ export default {
     },
     async gMaterialMaster(val) {
       this.isLoading = true;
+      this.iMaterial = [];
       try {
         const response = await gMaterialMaster(val);
         this.iMaterial = response.results.map((item) => ({
@@ -1404,9 +1566,13 @@ export default {
     },
     async gVendor() {
       this.isLoading = true;
+      this.iVendor = [];
       try {
         const response = await gVendor();
-        this.iVendor = response.results;
+        this.iVendor = response.results.map((item) => ({
+          ...item, // คัดลอกข้อมูลเดิม
+          displayVendor: `${item.vendorNo} : ${item.vendorDesc}`,
+        }));
       } catch (e) {
         console.log(e);
       } finally {
@@ -1416,6 +1582,7 @@ export default {
     },
     async gLineProcess() {
       this.isLoading = true;
+      this.iLineprocess = [];
       try {
         const response = await gLineProcess();
         this.iLineprocess = response.results;
@@ -1425,16 +1592,6 @@ export default {
         // ปิดการแสดงผล Loading ในทุกกรณี
         this.isLoading = false;
       }
-    },
-    formattedDateTime() {
-      if (!this.selectedDateTime) return "-";
-      const date = this.selectedDateTime;
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      return `${day}/${month}/${year} ${hours}:${minutes}`;
     },
     showError(message, color = "yellow") {
       this.msgSnackbar = message;
@@ -1478,20 +1635,43 @@ export default {
       this.dialog = true;
       this.mSelectedReqQa = item;
       await this.gTReasonDetail(this.mSelectedReqQa.formID);
-      await this.gTLineClearance(this.mSelectedReqQa.formID);
-      await this.gTPreparing(this.mSelectedReqQa.formID);
-      console.log(this.mTLineClearance, "mTLineClearance");
-      console.log(this.mTPreparing, "mTPreparing");
-      if(this.mTLineClearance.length != 0) {
-        this.mcMaterial = {
-          materialCode: this.mTLineClearance.material,
-          displayMaterial: `${this.mTLineClearance.material} : ${this.mTLineClearance.materialDesc}`
-        }
-      }
       this.mLineprocess = {
         lineProcessID: item.lineProcessID,
         lineProcessName: item.lineProcessName,
       };
+      await this.gTLineClearance(this.mSelectedReqQa.formID);
+      await this.gTPreparing(this.mSelectedReqQa.formID);
+      if (this.mTLineClearance.length != 0) {
+        this.mcMaterial = {
+          materialCode: this.mTLineClearance.material,
+          displayMaterial: `${this.mTLineClearance.material} : ${this.mTLineClearance.materialDesc}`,
+          materialDescriptionTH: this.mTLineClearance.materialDesc,
+        };
+        this.clearanceItem = this.clearanceItem.map((item) => {
+          // ค้นหารายการที่มี reasonClearID ตรงกัน
+          const matchedItem = this.mTLineClearance.details.find(
+            (lc) => lc.reasonClearID === item.reasonClearID
+          );
+
+          return {
+            ...item, // คัดลอกข้อมูลเดิม
+            selected: matchedItem ? matchedItem.detect : null, // ใช้ detect แทน selected
+          };
+        });
+      }
+      if (this.mTPreparing.length != 0) {
+        this.preparingItem = this.preparingItem.map((item) => {
+          // ค้นหารายการที่มี reasonPreparingID ตรงกัน
+          const matchedItem = this.mTPreparing.details.find(
+            (lc) => lc.reasonPreparingID === item.reasonPreparingID
+          );
+
+          return {
+            ...item, // คัดลอกข้อมูลเดิม
+            selected: matchedItem ? matchedItem.detect : null, // ใช้ detect แทน selected
+          };
+        });
+      }
       this.mMaterial = {
         materialCode: item.materialCode,
         displayMaterial: `${item.materialCode} : ${item.materialDesc}`,
@@ -1500,7 +1680,7 @@ export default {
         hglV7: item.materialSize,
         hglV3: item.materialCategory,
       };
-      this.mQtyEA = item.qtyEA;
+      this.mWeightPacking = item.weightPacking;
       this.mProdPlanEA = item.prodPlanEA;
       this.mProdPlanQtyEA = item.prodPlanQtyEA;
       this.mExpectedProdEA = item.expectedProdEA;
@@ -1513,10 +1693,61 @@ export default {
       this.mProblemResolve = item.remark;
     },
     deleteItem() {},
-    resetForm() {
+    async resetForm() {
       this.dialog = false;
+      this.mSelectedReqQa = [];
+      this.preparingItem = [];
+      this.clearanceItem = [];
+      this.selectedDateTime = new Date();
+      this.FileBatch = [];
+      this.mProductionDate = "";
+      this.mInspectionDate = "";
+      this.dialogPicture = false;
+      this.selectedImage = "";
+      this.tab = "Home";
+      this.listDProduct = [];
+      this.iVerifyProduct = [];
+      this.mLineprocess = "";
+      this.mcMaterial = "";
+      this.mMaterial = "";
+      this.mProblemResolve = "";
+      this.mVendor = "";
+      this.mReasonDetail = "";
+      this.mReasonDetailItem = "";
+      this.iReasonDetailItem = [];
+      this.mWeightPacking = 0;
+      this.mProdPlanEA = 0;
+      this.mProdPlanQtyEA = 0;
+      this.mExpectedProdEA = 0;
+      this.mStdTime = 0;
+      this.mStdWeight = 0;
+      this.mBulkUsed = "";
+      this.mScale = "";
+      this.mTLineClearance = [];
+      this.mTPreparing = [];
+      this.selectedTabTime = "";
+      this.tabsTime = [];
+      await this.gTFormList();
     },
     async submitForm() {
+      if (this.mSelectedReqQa.length == 0) {
+        console.log(this.mProductionDate, "mProductionDate");
+        if (isEmpty(this.mLineprocess)) {
+          return this.showError("กรุณาเลือกไลน์ผลิต");
+        }
+        if (isEmpty(this.mMaterial)) {
+          return this.showError("กรุณาเลือกผลิตภัณฑ์");
+        }
+        if (isEmpty(this.mProductionDate)) {
+          return this.showError("กรุณาเลือกวันที่ผลิต");
+        }
+        if (isEmpty(this.mInspectionDate)) {
+          return this.showError("กรุณาเลือกวันที่ตรวจสอบ");
+        }
+        if (Number(this.mInspectionDate) < Number(this.mProductionDate)) {
+          return this.showError("วันที่ตรวจสอบน้อยกว่าวันที่เริ่มผลิต");
+        }
+      }
       this.isLoading = true;
       try {
         const init = {
@@ -1531,7 +1762,7 @@ export default {
           materialColor: this.mMaterial.hgdesclV5,
           materialSize: this.mMaterial.hglV7,
           materialCategory: this.mMaterial.hglV3,
-          qtyEA: this.mQtyEA,
+          weightPacking: this.mWeightPacking,
           prodPlanEA: this.mProdPlanEA,
           prodPlanQtyEA: this.mProdPlanQtyEA,
           expectedProdEA: this.mExpectedProdEA,
@@ -1548,50 +1779,6 @@ export default {
         };
         const response = await pFormList(init);
 
-        if (this.mcMaterial.length != 0) {
-          const init = {
-            formID: this.mSelectedReqQa.length == 0 ? "" : this.mSelectedReqQa.formID,
-            lineProcessID: this.mLineprocess.lineProcessID,
-            lineProcessName: this.mLineprocess.lineProcessName,
-            material: this.mcMaterial.materialCode,
-            materialDesc: this.mcMaterial.materialDescriptionTH,
-            updateBy: this.user.empId,
-            details: [], // ✅ เพิ่ม details เป็นอีกฟิลด์
-          };
-
-          for (let index = 0; index < this.clearanceItem.length; index++) {
-            init.details.push({
-              reasonClearID: this.clearanceItem[index].reasonClearID, // ✅ ต้องใช้ index
-              reasonClearDesc: this.clearanceItem[index].reasonClearDesc,
-              detect:
-                this.clearanceItem[index].selected == null
-                  ? ""
-                  : this.clearanceItem[index].selected,
-            });
-          }
-          await pLineClearance(init);
-        }
-
-        if (this.preparingItem.length != 0) {
-          const init = {
-            formID: this.mSelectedReqQa.length == 0 ? "" : this.mSelectedReqQa.formID,
-            lineProcessID: this.mLineprocess.lineProcessID,
-            updateBy: this.user.empId,
-            details: [],
-          };
-          for (let index = 0; index < this.preparingItem.length; index++) {
-            init.details.push({
-              reasonPreparingID: this.preparingItem[index].reasonPreparingID, // ✅ ต้องใช้ index
-              reasonPreparingDesc: this.preparingItem[index].reasonPreparingDesc,
-              detect:
-                this.preparingItem[index].selected == null
-                  ? ""
-                  : this.preparingItem[index].selected,
-            });
-          }
-          await pPreparing(init);
-        }
-
         this.dialog = false;
         Swal.fire({
           html: `Successfully Form ID : ${response.formID}`,
@@ -1601,7 +1788,11 @@ export default {
           confirmButtonText: "OK",
         }).then(async (result) => {
           if (result.isConfirmed) {
-            //
+            await this.ClearingPreparing(response.formID);
+            this.resetForm();
+            const data = await this.gTFormListById(response.formID);
+            console.log(data, "data");
+            this.editItemTFormList(data);
           }
         });
       } catch (e) {
@@ -1617,6 +1808,85 @@ export default {
         });
       } finally {
         this.isLoading = false;
+      }
+    },
+    async ClearingPreparing(formID) {
+      if (this.mcMaterial.length != 0) {
+        const init = {
+          formID: this.mSelectedReqQa.length == 0 ? formID : this.mSelectedReqQa.formID,
+          lineProcessID: this.mLineprocess.lineProcessID,
+          lineProcessName: this.mLineprocess.lineProcessName,
+          material: this.mcMaterial.materialCode,
+          materialDesc: this.mcMaterial.materialDescriptionTH,
+          updateBy: this.user.empId,
+          details: [], // ✅ เพิ่ม details เป็นอีกฟิลด์
+        };
+
+        for (let index = 0; index < this.clearanceItem.length; index++) {
+          init.details.push({
+            reasonClearID: this.clearanceItem[index].reasonClearID, // ✅ ต้องใช้ index
+            reasonClearDesc: this.clearanceItem[index].reasonClearDesc,
+            detect:
+              this.clearanceItem[index].selected == null
+                ? ""
+                : this.clearanceItem[index].selected,
+          });
+        }
+        try {
+          await pLineClearance(init);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+
+      if (this.preparingItem.length != 0) {
+        const init = {
+          formID: this.mSelectedReqQa.length == 0 ? formID : this.mSelectedReqQa.formID,
+          lineProcessID: this.mLineprocess.lineProcessID,
+          updateBy: this.user.empId,
+          details: [],
+        };
+        for (let index = 0; index < this.preparingItem.length; index++) {
+          init.details.push({
+            reasonPreparingID: this.preparingItem[index].reasonPreparingID, // ✅ ต้องใช้ index
+            reasonPreparingDesc: this.preparingItem[index].reasonPreparingDesc,
+            detect:
+              this.preparingItem[index].selected == null
+                ? ""
+                : this.preparingItem[index].selected,
+          });
+        }
+        try {
+          await pPreparing(init);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      if (this.selectedItemsTime.length != 0) {
+        const init = {
+          formID: this.mSelectedReqQa.length == 0 ? formID : this.mSelectedReqQa.formID,
+          lineProcessID: this.mLineprocess.lineProcessID,
+          details: [],
+        };
+        for (let index = 0; index < this.selectedItemsTime.length; index++) {
+          init.details.push({
+            role: this.selectedItemsTime[index].Role,
+            groupDate: this.selectedItemsTime[index].Date,
+            groupTime: this.selectedItemsTime[index].Time,
+            problemDetectID: this.selectedItemsTime[index].problemDetectID,
+            problemDetectDesc: this.selectedItemsTime[index].problemDetectDesc,
+            employeeID: this.user.empId,
+            detect:
+              this.selectedItemsTime[index].selected == null
+                ? ""
+                : this.selectedItemsTime[index].selected,
+          });
+        }
+        try {
+          await pProblemRandomDetect(init);
+        } catch (e) {
+          console.log(e);
+        }
       }
     },
     formatDate(dateStr) {
@@ -1839,6 +2109,10 @@ export default {
   background-color: #fff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 0px; /* ไม่มีระยะห่างด้านล่าง */
+}
+
+.v-btn:hover {
+  filter: brightness(1.2); /* เพิ่มความสว่างเมื่อ Hover */
 }
 
 /* Actions */

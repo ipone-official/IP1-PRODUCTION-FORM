@@ -347,3 +347,60 @@ export const gVendor = async () => {
       throw error;
     }
   };
+
+  export const pProblemRandomDetect = async (data) => {
+    try {
+      // ตรวจสอบว่า data มีค่าที่จำเป็นหรือไม่
+      if (!data) {
+        throw new Error("Data required.");
+      }
+  
+      // ส่งคำขอ post พร้อม Body
+      const response = await api.post(`QA/v1/pProblemRandomDetect`, 
+        data, // ส่งข้อมูลใน Body
+      );
+  
+      return response.data; // ส่งคืนข้อมูลเมื่อสำเร็จ
+    } catch (error) {
+      console.error("Error in pProblemRandomDetect:", error);
+      throw error; // ส่งข้อผิดพลาดกลับไปยังผู้เรียก
+    }
+  };
+
+  export const pProblemRandomDetectWeight = async (data) => {
+    try {
+      // ตรวจสอบว่า data มีค่าที่จำเป็นหรือไม่
+      if (!data) {
+        throw new Error("Data required.");
+      }
+  
+      // ส่งคำขอ post พร้อม Body
+      const response = await api.post(`QA/v1/pProblemRandomDetectWeight`, 
+        data, // ส่งข้อมูลใน Body
+      );
+  
+      return response.data; // ส่งคืนข้อมูลเมื่อสำเร็จ
+    } catch (error) {
+      console.error("Error in pProblemRandomDetectWeight:", error);
+      throw error; // ส่งข้อผิดพลาดกลับไปยังผู้เรียก
+    }
+  };
+
+  export const gTProblemRandomDetact = async (FormID) => {
+    try {
+      const accessToken = localStorage.getItem("accessTokenQa");
+      // ตรวจสอบว่า accessToken มีค่าหรือไม่
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
+      const response = await api.get(
+        `QA/v1/gTProblemRandomDetact?FormID=${FormID}`,
+      );
+  
+      return response.data;
+    } catch (error) {
+      console.error('Error in gTProblemRandomDetact:', error);
+      throw error;
+    }
+  };
