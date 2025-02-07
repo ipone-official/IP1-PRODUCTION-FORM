@@ -22,17 +22,17 @@
 
     <!-- Navigation Links -->
     <v-list density="compact" nav>
-      <!-- Home -->
+      <!-- QaForm -->
       <v-list-item
         class="menu-item"
-        @click="navigateTo('/home')"
+        @click="navigateTo('/QaForm')"
         dense
         rounded="shaped"
-        value="home"
+        value="QaForm"
       >
         <v-list-item-title class="menu-title">
-          <v-icon>mdi-home</v-icon>
-          Home
+          <v-icon>mdi-document</v-icon>
+          QaForm
         </v-list-item-title>
       </v-list-item>
     </v-list>

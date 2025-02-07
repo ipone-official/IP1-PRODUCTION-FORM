@@ -65,7 +65,7 @@
           <!-- Delete Tooltip -->
           <v-tooltip text="Delete" location="bottom" color="red" text-color="white">
             <template v-slot:activator="{ props }">
-              <v-btn icon variant="text" v-bind="props" @click="deleteItem(item)">
+              <v-btn icon variant="text" v-bind="props" @click="deleteItemTFomList(item)">
                 <v-icon color="red">mdi-delete</v-icon>
               </v-btn>
             </template>
@@ -689,31 +689,84 @@
                                   </v-tooltip>
                                 </v-col>
                               </v-row>
+
                               <v-row>
-                                {{ selectedTabTime }} //
-                                {{ selectedItemsTime }}
-                                <v-col cols="12" sm="12" v-if="tabsTime.length != 0">
+                                <!-- {{ CreateByName }}
+                                {{ selectedTabTime }} // {{ selectedItemsTime }} //
+                                {{ mRawDataRandomDetect }} -->
+                                <v-col
+                                  :cols="mCreateOnly && tabsTime.length > 0 ? 10 : 12"
+                                  :sm="mCreateOnly && tabsTime.length > 0 ? 11 : 12"
+                                  :xs="mCreateOnly && tabsTime.length > 0 ? 11 : 12"
+                                  v-if="tabsTime.length != 0"
+                                >
                                   <v-sheet elevation="6">
                                     <v-tabs
                                       v-model="selectedTabTime"
                                       :items="tabsTime"
-                                      bg-color="indigo"
+                                      bg-color="#007fc4"
                                       next-icon="mdi-arrow-right-bold-box-outline"
                                       prev-icon="mdi-arrow-left-bold-box-outline"
                                       show-arrows
                                     >
                                       <template v-slot:tab="{ item }">
-                                        <v-tab :key="item.value" :value="item.value">
+                                        <v-tab
+                                          :key="item.value"
+                                          :value="item.value"
+                                          :class="getTabColor(item.role)"
+                                        >
                                           <v-icon left>{{ item.icon }}</v-icon>
                                           <span v-html="item.formattedText"></span>
-                                          <!-- ✅ ใช้ v-html เพื่อขึ้นบรรทัดใหม่ -->
                                         </v-tab>
                                       </template>
                                     </v-tabs>
                                   </v-sheet>
                                 </v-col>
-                              </v-row>
 
+                                <!-- ✅ แสดงปุ่มลบเฉพาะเมื่อ mCreateOnly == true -->
+                                <v-col
+                                  cols="1"
+                                  sm="1"
+                                  xs="1"
+                                  v-show="mCreateOnly && tabsTime.length > 0"
+                                >
+                                  <v-tooltip
+                                    text="ลบข้อมูลล่าสุด"
+                                    location="center"
+                                    color="primary"
+                                    text-color="white"
+                                  >
+                                    <template v-slot:activator="{ props }">
+                                      <v-btn
+                                        icon
+                                        variant="text"
+                                        v-bind="props"
+                                        @click="removeLastTab"
+                                      >
+                                        <v-icon color="red">mdi-delete</v-icon>
+                                      </v-btn>
+                                    </template>
+                                  </v-tooltip>
+                                </v-col>
+                              </v-row>
+                              <v-row class="d-flex justify-end">
+                                <v-col cols="12" md="4">
+                                  <v-card
+                                    class="grey-card"
+                                    outlined
+                                    v-if="selectedTabTime"
+                                  >
+                                    <v-card-text class="text-left">
+                                      ผู้ตรวจสอบ :
+                                      {{
+                                        CreateByName.length != 0
+                                          ? CreateByName
+                                          : user.samAccount
+                                      }}
+                                    </v-card-text>
+                                  </v-card>
+                                </v-col>
+                              </v-row>
                               <v-row v-if="selectedTabTime">
                                 <v-col cols="12" md="8" sm="8" xs="12">
                                   <v-row class="d-flex justify-center">
@@ -801,6 +854,7 @@
                                   <v-row>
                                     <v-col cols="10" sm="10">
                                       <v-text-field
+                                        v-model="mWeight"
                                         outlined
                                         dense
                                         required
@@ -825,7 +879,7 @@
                                             icon
                                             variant="text"
                                             v-bind="props"
-                                            @click="plus(item)"
+                                            @click="plusWeight"
                                           >
                                             <v-icon color="primary"
                                               >mdi-plus-circle-outline</v-icon
@@ -854,7 +908,7 @@
                                                 icon
                                                 variant="text"
                                                 v-bind="props"
-                                                @click="deleteItem(item)"
+                                                @click="deleteItemWeight(item)"
                                               >
                                                 <v-icon color="red">mdi-delete</v-icon>
                                               </v-btn>
@@ -1050,8 +1104,11 @@ import {
   gTFormList,
   gTFormListById,
   pProblemRandomDetect,
-  pProblemRandomDetectWeight,
-  gTProblemRandomDetact,
+  gTProblemRandomDetect,
+  gTProblemRandomDetectWeight,
+  pTProblemRandomDetectWeight,
+  dTProblemRandomDetectWeight,
+  dFormList,
 } from "@/services/apiQa.js";
 import Swal from "sweetalert2";
 import { isEmpty } from "lodash";
@@ -1087,7 +1144,7 @@ export default {
       //   model picture Batch No
       dialogPicture: false,
       selectedImage: "",
-      tab: "Detail",
+      tab: "Home",
       tabs: [
         {
           icon: "mdi-head-lightbulb-outline",
@@ -1174,12 +1231,12 @@ export default {
         {
           title: "ลำดับ",
           align: "left",
-          key: "column1",
+          key: "index",
         },
         {
           title: "น้ำหนัก",
           align: "left",
-          key: "column2",
+          key: "detectWeight",
         },
         {
           title: "Actions",
@@ -1188,16 +1245,7 @@ export default {
           sortable: false,
         },
       ],
-      listVerifyProduct: [
-        {
-          column1: "1",
-          column2: "column1",
-        },
-        {
-          column1: "2",
-          column2: "column2",
-        },
-      ],
+      listVerifyProduct: [],
       iVerifyProduct: [],
       mLineprocess: "",
       iLineprocess: [],
@@ -1225,6 +1273,9 @@ export default {
       selectedTabTime: null,
       selectedItemsTime: [],
       mCreateOnly: false,
+      mRawDataRandomDetect: [],
+      CreateByName: "",
+      mWeight: 0,
     };
   },
   created() {
@@ -1244,11 +1295,57 @@ export default {
     },
   },
   watch: {
-    // selectedTabTime(val){
+    selectedTabTime(val) {
+      if (!val) return "Unknow";
 
-    // },
+      const [datePart, timePart] = val.split(" ");
+      const [day, month, year] = datePart.split("/");
+      const formattedGroupDate = `${year}${month}${day}`; // แปลงเป็น YYYYMMDD
+      const formattedGroupTime = timePart; // HH:MM (คงค่าเดิม)
+
+      const initGet = {
+        formID: this.mSelectedReqQa.formID,
+        groupDate: formattedGroupDate,
+        groupTime: formattedGroupTime,
+      };
+      this.gTProblemRandomDetectWeight(initGet);
+
+      // ✅ ค้นหาและกรองข้อมูลที่ตรงกับ groupDate และ groupTime
+      const filterRandomDetact = this.mRawDataRandomDetect.filter(
+        (item) => item.groupDate === formattedGroupDate && item.groupTime === timePart
+      );
+
+      if (filterRandomDetact.length !== 0) {
+        // ✅ ใช้ข้อมูลจาก mRawDataRandomDetect
+        this.iVerifyProduct = this.iVerifyProduct.map((item) => {
+          const matchedItem = filterRandomDetact.find(
+            (lc) => lc.problemDetectID === item.problemDetectID
+          );
+          if (matchedItem) {
+            this.CreateByName = matchedItem.createByName;
+          }
+          return {
+            ...item,
+            selected: matchedItem ? matchedItem.detect : null,
+          };
+        });
+      } else {
+        const filterSelectedItems = this.selectedItemsTime.filter(
+          (item) => item.DateTime === val // ตรวจสอบค่า DateTime ตรงกับ selectedTabTime
+        );
+
+        this.iVerifyProduct = this.iVerifyProduct.map((item) => {
+          const matchedItem = filterSelectedItems.find(
+            (lc) => lc.problemDetectID === item.problemDetectID
+          );
+          return {
+            ...item,
+            selected: matchedItem ? matchedItem.selected : null,
+          };
+        });
+      }
+    },
     mLineprocess(val) {
-      console.log(val, "mLineprocess");
       if (val.length === 0) return "Unknow";
       this.gPreparing(val.lineProcessID);
       this.gLineClearance(val.lineProcessID);
@@ -1274,26 +1371,176 @@ export default {
     },
   },
   methods: {
+    async plusWeight() {
+      const [datePart, timePart] = this.selectedTabTime.split(" ");
+      const [day, month, year] = datePart.split("/");
+      const formattedGroupDate = `${year}${month}${day}`; // YYYYMMDD
+      const formattedGroupTime = timePart; // HH:MM (คงค่าเดิม)
+      const init = {
+        formID: this.mSelectedReqQa.formID,
+        groupDate: formattedGroupDate,
+        groupTime: formattedGroupTime,
+        detectWeight: this.mWeight,
+        employeeID: this.user.empId,
+      };
+      this.isLoading = true;
+      try {
+        await pTProblemRandomDetectWeight(init);
+        this.mWeight = 0;
+        const initGet = {
+          formID: this.mSelectedReqQa.formID,
+          groupDate: formattedGroupDate,
+          groupTime: formattedGroupTime,
+        };
+        this.gTProblemRandomDetectWeight(initGet);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async gTProblemRandomDetectWeight(val) {
+      this.isLoading = true;
+      this.listVerifyProduct = [];
+      try {
+        const response = await gTProblemRandomDetectWeight(val);
+        this.listVerifyProduct = response.results.map((item, index) => ({
+          ...item,
+          index: index + 1, // ✅ เพิ่มฟิลด์ index (เริ่มที่ 1)
+        }));
+      } catch (e) {
+        console.log(e);
+      } finally {
+        // ปิดการแสดงผล Loading ในทุกกรณี
+        this.isLoading = false;
+      }
+    },
+    async deleteItemTFomList(item) {
+      console.log(item, "deleteItemTFomList");
+      Swal.fire({
+        html: `คุณแน่ใจหรือไม่ว่าต้องการลบเลขที่เอกสาร <strong>${item.formID} </strong>?`,
+        icon: "warning",
+        showCancelButton: true,
+        allowOutsideClick: false,
+        confirmButtonText: "OK",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          this.isLoading = true;
+          try {
+            await dFormList(item.formID);
+            Swal.fire({
+              html: `ลบรายการสำเร็จ`,
+              icon: "success",
+              showCancelButton: false,
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+            }).then(async (result) => {
+              if (result.isConfirmed) {
+                await this.gTFormList();
+              }
+            });
+          } catch (e) {
+            Swal.fire({
+              text: "500 Internal server error",
+              icon: "error",
+              showCancelButton: false,
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+            });
+          } finally {
+            // ปิดการแสดงผล Loading ในทุกกรณี
+            this.isLoading = false;
+          }
+        }
+      });
+    },
+    async deleteItemWeight(item) {
+      this.dialog = false;
+      Swal.fire({
+        html: `คุณแน่ใจหรือไม่ว่าต้องการลบรายการลำดับที่  <strong>${item.index}</strong> <br> น้ำหนัก <strong>${item.detectWeight}</strong>?`,
+        icon: "warning",
+        showCancelButton: true,
+        allowOutsideClick: false,
+        confirmButtonText: "OK",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          this.isLoading = true;
+          const initDel = {
+            formID: item.formID,
+            groupDate: item.groupDate,
+            groupTime: item.groupTime,
+            detectno: item.detectno,
+          };
+          const initGet = {
+            formID: item.formID,
+            groupDate: item.groupDate,
+            groupTime: item.groupTime,
+          };
+          try {
+            await dTProblemRandomDetectWeight(initDel);
+            await this.gTProblemRandomDetectWeight(initGet);
+            this.dialog = true;
+          } catch (e) {
+            console.log(e);
+            this.dialog = true;
+          } finally {
+            // ปิดการแสดงผล Loading ในทุกกรณี
+            this.isLoading = false;
+          }
+        } else {
+          this.dialog = true;
+        }
+      });
+    },
     handleSelectionChange(item) {
-  const timestamp = this.selectedTabTime; // ใช้เวลาที่เลือก
-  const existingIndex = this.selectedItemsTime.findIndex(
-    (i) => i.problemDetectID === item.problemDetectID && i.DateTime === timestamp
-  );
+      if (!this.selectedTabTime) return "selectedTabTime is null";
+      // ✅ แปลง selectedTabTime ("07/02/2025 09:48") เป็น groupDate และ groupTime
+      const [datePart, timePart] = this.selectedTabTime.split(" ");
+      const [day, month, year] = datePart.split("/");
+      const formattedGroupDate = `${year}${month}${day}`; // YYYYMMDD
+      const formattedGroupTime = timePart; // HH:MM (คงค่าเดิม)
 
-  if (existingIndex !== -1) {
-    // ✅ ถ้ามี timestamp เดิมอยู่แล้ว ไม่ต้องอัปเดตค่า
-    this.selectedItemsTime[existingIndex].selected = item.selected;
-  } else {
-    // ✅ ถ้าไม่มี timestamp เดิม ให้ใช้ค่าจาก selectedItemsTime ที่ตรงกับ timestamp
-    const existingItem = this.selectedItemsTime.find((i) => i.DateTime === timestamp);
-    
-    const updatedItem = existingItem
-      ? { ...existingItem, ...item, timestamp } // ใช้ค่าเดิมจาก selectedItemsTime
-      : { ...item, timestamp }; // ใช้ค่าจาก item ที่รับมา ถ้าไม่มีค่าเก่าใน selectedItemsTime
+      // ✅ ค้นหาและอัปเดตค่า detect ใน this.mRawDataRandomDetect
+      this.mRawDataRandomDetect.forEach((dataItem) => {
+        if (
+          dataItem.groupDate === formattedGroupDate &&
+          dataItem.groupTime === formattedGroupTime &&
+          dataItem.problemDetectID === item.problemDetectID
+        ) {
+          dataItem.detect = item.selected; // ✅ อัปเดตค่า detect
+          dataItem.updateBy = this.user.empId;
+        }
+      });
 
-    this.selectedItemsTime.push(updatedItem);
-  }
-},
+      // ✅ ค้นหา index ใน selectedItemsTime
+      const existingIndex = this.selectedItemsTime.findIndex(
+        (i) =>
+          i.problemDetectID === item.problemDetectID &&
+          i.DateTime === this.selectedTabTime
+      );
+
+      if (existingIndex !== -1) {
+        // ✅ ถ้ามี timestamp เดิมอยู่แล้ว → อัปเดตเฉพาะค่า selected
+        this.selectedItemsTime[existingIndex].selected = item.selected;
+        this.selectedItemsTime[existingIndex].updateBy = this.user.empId;
+      }
+    },
+    removeLastTab() {
+      if (this.tabsTime.length > 0) {
+        this.tabsTime.pop(); // ✅ ลบแท็บสุดท้ายออก
+
+        // ✅ ถ้ามีแท็บเหลือ ให้ตั้ง selectedTabTime เป็น value ของแท็บสุดท้าย
+        if (this.tabsTime.length > 0) {
+          this.selectedTabTime = this.tabsTime[this.tabsTime.length - 1].value;
+        } else {
+          this.selectedTabTime = null; // ✅ ถ้าไม่มีแท็บ ให้เป็น null
+        }
+      }
+
+      // ✅ รีเซ็ตค่าที่เกี่ยวข้อง
+      this.selectedItemsTime = [];
+      this.mCreateOnly = false;
+    },
 
     formatDateTime(date) {
       if (!(date instanceof Date) || isNaN(date)) return "-";
@@ -1316,22 +1563,42 @@ export default {
         icon: "mdi-clock-outline",
         text: formatted.date,
         value: formatted.date + " " + formatted.time,
-        role: "time",
+        role: this.MapRole(this.user.group),
         formattedText: `${formatted.date}<br>${formatted.time}`,
       };
 
       this.tabsTime.push(newTab);
-
       this.selectedTabTime = newTab.value;
       this.gRandomDetect(this.mLineprocess.lineProcessID);
+
+      this.selectedItemsTime = this.iVerifyProduct;
       this.selectedItemsTime = this.iVerifyProduct.map((item) => ({
         ...item,
+        selected: null, // ✅ ล้างค่า selected ให้เป็น null
         DateTime: formatted.date + " " + formatted.time,
         Date: this.FormatDate(formatted.date),
         Time: formatted.time,
-        Role: "ทดสอบ",
+        role: this.MapRole(this.user.group),
       }));
+
       this.mCreateOnly = true;
+    },
+    MapRole(user) {
+      const rolesPriority = [
+        "QA.ADMIN",
+        "QA.MANAGER",
+        "QA.SUPERVISOR",
+        "QA.OPERATOR",
+        "QA.QUALITY CONTROL",
+      ];
+
+      for (const role of rolesPriority) {
+        if (user.includes(role)) {
+          return role;
+        }
+      }
+
+      return null;
     },
     FormatDate(val) {
       if (!val) return "Unknow";
@@ -1434,6 +1701,76 @@ export default {
         this.isLoading = false;
       }
     },
+    convertDateToDDMMYYYY(inputDate) {
+      if (!/^\d{8}$/.test(inputDate)) return null; // ตรวจสอบว่าข้อมูลเป็น 8 หลัก
+
+      const year = inputDate.substring(0, 4);
+      const month = inputDate.substring(4, 6);
+      const day = inputDate.substring(6, 8);
+
+      return `${day}/${month}/${year}`;
+    },
+    getTabColor(role) {
+      const roleColors = {
+        "QA.ADMIN": "bg-green lighten-3",
+        "QA.MANAGER": "bg-green lighten-3",
+        "QA.SUPERVISOR": "bg-green lighten-3",
+        "QA.OPERATOR": "#007fc4",
+        "QA.QUALITY CONTROL": "#f8c849",
+      };
+
+      return roleColors[role] || "bg-grey lighten-3"; // สีเริ่มต้นถ้าไม่มี role ที่ตรงกัน
+    },
+    async gTProblemRandomDetect(val) {
+      this.isLoading = true;
+      this.mRawDataRandomDetect = [];
+      try {
+        const response = await gTProblemRandomDetect(val);
+        this.mRawDataRandomDetect = response.results;
+        // ลบค่าซ้ำโดยใช้ groupDate และ groupTime
+        const uniqueDates = new Map();
+        let latestDateTime = { date: "", time: "" };
+        response.results.forEach((item) => {
+          const key = item.groupDate + " " + item.groupTime;
+          if (!uniqueDates.has(key)) {
+            uniqueDates.set(key, {
+              date: item.groupDate,
+              time: item.groupTime,
+              role: item.role,
+            });
+          }
+          if (
+            item.groupDate > latestDateTime.date ||
+            (item.groupDate === latestDateTime.date &&
+              item.groupTime > latestDateTime.time)
+          ) {
+            latestDateTime = { date: item.groupDate, time: item.groupTime };
+          }
+        });
+
+        // แปลงข้อมูลให้เป็น newTab format
+        const uniqueTabs = Array.from(uniqueDates.values()).map((formatted) => ({
+          icon: "mdi-clock-outline",
+          text: this.convertDateToDDMMYYYY(formatted.date),
+          value: this.convertDateToDDMMYYYY(formatted.date) + " " + formatted.time,
+          role: formatted.role,
+          formattedText: `${this.convertDateToDDMMYYYY(formatted.date)}<br>${
+            formatted.time
+          }`,
+        }));
+        // เพิ่มไปยัง tabsTime
+        this.tabsTime = uniqueTabs;
+        if (latestDateTime.date && latestDateTime.time) {
+          this.selectedTabTime =
+            this.convertDateToDDMMYYYY(latestDateTime.date) + " " + latestDateTime.time;
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        // ปิดการแสดงผล Loading ในทุกกรณี
+        this.isLoading = false;
+      }
+    },
     async gTFormListById(val) {
       this.isLoading = true;
       try {
@@ -1507,6 +1844,7 @@ export default {
       this.isLoading = true;
       try {
         const response = await gRandomDetect(val);
+        this.iVerifyProduct = [];
         this.iVerifyProduct = response.results.map((item) => ({
           ...item, // คัดลอกข้อมูลเดิม
           selected: null, // เพิ่มฟิลด์ selected
@@ -1641,6 +1979,7 @@ export default {
       };
       await this.gTLineClearance(this.mSelectedReqQa.formID);
       await this.gTPreparing(this.mSelectedReqQa.formID);
+      await this.gTProblemRandomDetect(this.mSelectedReqQa.formID);
       if (this.mTLineClearance.length != 0) {
         this.mcMaterial = {
           materialCode: this.mTLineClearance.material,
@@ -1725,13 +2064,16 @@ export default {
       this.mScale = "";
       this.mTLineClearance = [];
       this.mTPreparing = [];
-      this.selectedTabTime = "";
+      this.selectedTabTime = null;
+      this.selectedItemsTime = [];
       this.tabsTime = [];
+      this.mCreateOnly = false;
+      this.mRawDataRandomDetect = [];
+      this.CreateByName = "";
       await this.gTFormList();
     },
     async submitForm() {
       if (this.mSelectedReqQa.length == 0) {
-        console.log(this.mProductionDate, "mProductionDate");
         if (isEmpty(this.mLineprocess)) {
           return this.showError("กรุณาเลือกไลน์ผลิต");
         }
@@ -1781,7 +2123,7 @@ export default {
 
         this.dialog = false;
         Swal.fire({
-          html: `Successfully Form ID : ${response.formID}`,
+          html: `บันทึกสำเร็จ เลขที่เอกสาร : ${response.formID}`,
           icon: "success",
           showCancelButton: false,
           allowOutsideClick: false,
@@ -1862,25 +2204,43 @@ export default {
           console.log(e);
         }
       }
-      if (this.selectedItemsTime.length != 0) {
+      if (this.selectedItemsTime.length != 0 || this.mRawDataRandomDetect.length != 0) {
         const init = {
           formID: this.mSelectedReqQa.length == 0 ? formID : this.mSelectedReqQa.formID,
           lineProcessID: this.mLineprocess.lineProcessID,
           details: [],
         };
-        for (let index = 0; index < this.selectedItemsTime.length; index++) {
-          init.details.push({
-            role: this.selectedItemsTime[index].Role,
-            groupDate: this.selectedItemsTime[index].Date,
-            groupTime: this.selectedItemsTime[index].Time,
-            problemDetectID: this.selectedItemsTime[index].problemDetectID,
-            problemDetectDesc: this.selectedItemsTime[index].problemDetectDesc,
-            employeeID: this.user.empId,
-            detect:
-              this.selectedItemsTime[index].selected == null
-                ? ""
-                : this.selectedItemsTime[index].selected,
-          });
+        if (this.selectedItemsTime.length != 0) {
+          for (let index = 0; index < this.selectedItemsTime.length; index++) {
+            init.details.push({
+              role: this.selectedItemsTime[index].role,
+              groupDate: this.selectedItemsTime[index].Date,
+              groupTime: this.selectedItemsTime[index].Time,
+              problemDetectID: this.selectedItemsTime[index].problemDetectID,
+              problemDetectDesc: this.selectedItemsTime[index].problemDetectDesc,
+              employeeID: this.user.empId,
+              detect:
+                this.selectedItemsTime[index].selected == null
+                  ? ""
+                  : this.selectedItemsTime[index].selected,
+            });
+          }
+        }
+        if (this.mRawDataRandomDetect.length != 0) {
+          for (let index = 0; index < this.mRawDataRandomDetect.length; index++) {
+            init.details.push({
+              role: this.mRawDataRandomDetect[index].role,
+              groupDate: this.mRawDataRandomDetect[index].groupDate,
+              groupTime: this.mRawDataRandomDetect[index].groupTime,
+              problemDetectID: this.mRawDataRandomDetect[index].problemDetectID,
+              problemDetectDesc: this.mRawDataRandomDetect[index].problemDetectDesc,
+              employeeID: this.mRawDataRandomDetect[index].updateBy,
+              detect:
+                this.mRawDataRandomDetect[index].detect == null
+                  ? ""
+                  : this.mRawDataRandomDetect[index].detect,
+            });
+          }
         }
         try {
           await pProblemRandomDetect(init);

@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // สร้าง instance ของ axios เพื่อกำหนดค่า base URL และ config เบื้องต้น
 const api = axios.create({
-  baseURL: 'https://localhost:44349/', // เปลี่ยน URL เป็น API ที่คุณต้องการ
+  baseURL: 'https://portal.ip-one.com/', // เปลี่ยน URL เป็น API ที่คุณต้องการ
   timeout: 0, // ตั้งค่า timeout สำหรับการเชื่อมต่อ (หน่วยเป็นมิลลิวินาที)
   headers: {
     'Content-Type': 'application/json',
@@ -367,26 +367,7 @@ export const gVendor = async () => {
     }
   };
 
-  export const pProblemRandomDetectWeight = async (data) => {
-    try {
-      // ตรวจสอบว่า data มีค่าที่จำเป็นหรือไม่
-      if (!data) {
-        throw new Error("Data required.");
-      }
-  
-      // ส่งคำขอ post พร้อม Body
-      const response = await api.post(`QA/v1/pProblemRandomDetectWeight`, 
-        data, // ส่งข้อมูลใน Body
-      );
-  
-      return response.data; // ส่งคืนข้อมูลเมื่อสำเร็จ
-    } catch (error) {
-      console.error("Error in pProblemRandomDetectWeight:", error);
-      throw error; // ส่งข้อผิดพลาดกลับไปยังผู้เรียก
-    }
-  };
-
-  export const gTProblemRandomDetact = async (FormID) => {
+  export const gTProblemRandomDetect = async (FormID) => {
     try {
       const accessToken = localStorage.getItem("accessTokenQa");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
@@ -395,12 +376,89 @@ export const gVendor = async () => {
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gTProblemRandomDetact?FormID=${FormID}`,
+        `QA/v1/gTProblemRandomDetect?FormID=${FormID}`,
       );
   
       return response.data;
     } catch (error) {
-      console.error('Error in gTProblemRandomDetact:', error);
+      console.error('Error in gTProblemRandomDetect:', error);
       throw error;
     }
   };
+
+  export const gTProblemRandomDetectWeight = async (data) => {
+    try {
+      const accessToken = localStorage.getItem("accessTokenQa");
+      // ตรวจสอบว่า accessToken มีค่าหรือไม่
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
+      const response = await api.post(
+        `QA/v1/gTProblemRandomDetectWeight`, data
+      );
+  
+      return response.data;
+    } catch (error) {
+      console.error('Error in gTProblemRandomDetectWeight:', error);
+      throw error;
+    }
+  };
+
+
+  export const pTProblemRandomDetectWeight = async (data) => {
+    try {
+      // ตรวจสอบว่า data มีค่าที่จำเป็นหรือไม่
+      if (!data) {
+        throw new Error("Data required.");
+      }
+  
+      // ส่งคำขอ post พร้อม Body
+      const response = await api.post(`QA/v1/pTProblemRandomDetectWeight`, 
+        data, // ส่งข้อมูลใน Body
+      );
+  
+      return response.data; // ส่งคืนข้อมูลเมื่อสำเร็จ
+    } catch (error) {
+      console.error("Error in pTProblemRandomDetectWeight:", error);
+      throw error; // ส่งข้อผิดพลาดกลับไปยังผู้เรียก
+    }
+  };
+
+  export const dTProblemRandomDetectWeight = async (data) => {
+    try {
+      // ✅ ตรวจสอบว่ามีข้อมูลส่งเข้ามาหรือไม่
+      if (!data) {
+        throw new Error("Data required.");
+      }
+  
+      // ✅ ส่ง HTTP DELETE request พร้อม Body โดยใส่ data ใน config
+      const response = await api.delete(`QA/v1/dTProblemRandomDetectWeight`, {
+        data, // ✅ ใส่ data ใน config ของ axios
+      });
+  
+      return response.data; // ✅ ส่งคืนข้อมูลเมื่อสำเร็จ
+    } catch (error) {
+      console.error("Error in dTProblemRandomDetectWeight:", error);
+      throw error; // ✅ ส่งข้อผิดพลาดกลับไป
+    }
+  };
+  
+  export const dFormList = async (FormID) => {
+    try {
+      // ✅ ตรวจสอบว่ามีข้อมูลส่งเข้ามาหรือไม่
+      if (!FormID) {
+        throw new Error("Data required.");
+      }
+  
+      // ✅ ส่ง HTTP DELETE request พร้อม Body โดยใส่ data ใน config
+      const response = await api.delete(`QA/v1/dFormList?FormID=${FormID}`);
+  
+      return response.data; // ✅ ส่งคืนข้อมูลเมื่อสำเร็จ
+    } catch (error) {
+      console.error("Error in dTProblemRandomDetectWeight:", error);
+      throw error; // ✅ ส่งข้อผิดพลาดกลับไป
+    }
+  };
+
+  

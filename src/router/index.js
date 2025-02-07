@@ -1,16 +1,16 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import Login from '@/Pages/core/PageLogin.vue';
 import Main from '@/Pages/MainPage.vue';
-import Home from '@/Pages/Home.vue';
+import QaForm from '@/Pages/QaForm.vue';
 import Profile from '@/Pages/Profile.vue';
 import { isTokenNearExpiration, RenewToken } from "@/services/apiService.js";
 const routes = [
   {
-    path: '/home',
-    name: 'home',
-    component: Home,
+    path: '/QaForm',
+    name: 'QaForm',
+    component: QaForm,
     meta: {
-      breadcrumb: [{ name: 'Home', link: '/Home' },
+      breadcrumb: [{ name: 'QaForm', link: '/QaForm' },
       ],
     },
   },

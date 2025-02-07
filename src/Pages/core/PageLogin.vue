@@ -139,7 +139,7 @@ export default {
           localStorage.setItem("accessTokenQa", response.accessToken);
           localStorage.setItem("refreshTokenQa", response.refreshToken);
           // เปลี่ยนเส้นทางไปยังหน้าหลัก
-          this.$router.push({ name: "home" });
+          this.$router.push({ name: "QaForm" });
         } else {
           this.showError("Login failed. User locked.", " red");
         }
