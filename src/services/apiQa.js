@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // สร้าง instance ของ axios เพื่อกำหนดค่า base URL และ config เบื้องต้น
 const api = axios.create({
-  baseURL: 'https://portal.ip-one.com/', // เปลี่ยน URL เป็น API ที่คุณต้องการ
+  baseURL: 'https://portal.ip-one.com/ApiQA/', // เปลี่ยน URL เป็น API ที่คุณต้องการ
   timeout: 0, // ตั้งค่า timeout สำหรับการเชื่อมต่อ (หน่วยเป็นมิลลิวินาที)
   headers: {
     'Content-Type': 'application/json',
