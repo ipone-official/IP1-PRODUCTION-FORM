@@ -57,13 +57,19 @@
           <v-tooltip text="Edit" location="bottom" color="blue" text-color="white">
             <template v-slot:activator="{ props }">
               <v-btn icon variant="text" v-bind="props" @click="editItemTFormList(item)">
-                <v-icon color="blue">mdi-pencil</v-icon>
+                <v-icon color="blue">mdi-washing-machine</v-icon>
               </v-btn>
             </template>
           </v-tooltip>
 
           <!-- Delete Tooltip -->
-          <v-tooltip text="Delete" location="bottom" color="red" text-color="white">
+          <v-tooltip
+            text="Delete"
+            location="bottom"
+            color="red"
+            text-color="white"
+            v-if="canEdit"
+          >
             <template v-slot:activator="{ props }">
               <v-btn icon variant="text" v-bind="props" @click="deleteItemTFomList(item)">
                 <v-icon color="red">mdi-delete</v-icon>
@@ -108,6 +114,41 @@
                 </v-card>
               </v-col>
             </v-row>
+            <v-row justify="end" align="center">
+              <v-col cols="12" md="1">
+              <v-btn
+                color="success"
+                large
+                elevation="6"
+                class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
+                @click="submitForm('Completed')"
+              >
+                <v-icon left>mdi-check-circle-outline</v-icon> อนุมัติ
+              </v-btn>
+              </v-col>
+              <v-col cols="12" md="1">
+              <v-btn
+                color="success"
+                large
+                elevation="6"
+                class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
+                @click="submitForm('WaitApproved')"
+              >
+                <v-icon left>mdi-check-circle-outline</v-icon> ส่งอนุมัติ
+              </v-btn>
+              </v-col>
+              <v-col cols="12" md="1">
+              <v-btn
+                color="success"
+                large
+                elevation="6"
+                class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
+                @click="submitForm('WaitConfirm')"
+              >
+                <v-icon left>mdi-check-circle-outline</v-icon> ส่งตรวจสอบ
+              </v-btn>
+              </v-col>
+            </v-row>
             <!-- Tabs -->
             <v-row>
               <v-col cols="12">
@@ -144,7 +185,7 @@
                               required
                               return-object
                               class="filter-select input-field"
-                              :readonly="viewOnly"
+                              :readonly="mSelectedReqQa.formID"
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span> ไลน์ผลิต
@@ -162,7 +203,7 @@
                               required
                               return-object
                               class="filter-select input-field"
-                              :readonly="viewOnly"
+                              :readonly="mSelectedReqQa.formID"
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span> ผลิตภัณฑ์
@@ -399,6 +440,7 @@
                               prepend-inner-icon="mdi-weight-kilogram"
                               class="input-field"
                               v-model="mWeightPacking"
+                              type="number"
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span
@@ -413,6 +455,7 @@
                               required
                               class="input-field"
                               v-model="mStdWeight"
+                              type="number"
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span>น้ำหนัก (STD)
@@ -439,6 +482,7 @@
                               required
                               class="input-field"
                               v-model="mProdPlanEA"
+                              type="number"
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span>แผนการผลิต (EA)
@@ -452,6 +496,7 @@
                               required
                               class="input-field"
                               v-model="mExpectedProdEA"
+                              type="number"
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span>คาดว่าผลิตได้ (EA)
@@ -465,6 +510,7 @@
                               required
                               class="input-field"
                               v-model="mProdPlanQtyEA"
+                              type="number"
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span>จำนวนแผนการผลิต (EA)
@@ -478,6 +524,7 @@
                               required
                               class="input-field"
                               v-model="mStdTime"
+                              type="number"
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span>เวลาบรรจุ STD (DZ/Hr.)
@@ -732,7 +779,7 @@
                                 >
                                   <v-tooltip
                                     text="ลบข้อมูลล่าสุด"
-                                    location="center"
+                                    location="top"
                                     color="primary"
                                     text-color="white"
                                   >
@@ -860,7 +907,8 @@
                                         required
                                         prepend-inner-icon="mdi-weight-lifter"
                                         class="input-field"
-                                        :readonly="viewOnly"
+                                        type="number"
+                                        @keyup.enter="plusWeight"
                                       >
                                         <template v-slot:label>
                                           <span style="color: red">*</span>น้ำหนัก
@@ -1128,6 +1176,11 @@ export default {
   },
   data() {
     return {
+      operatorEdit: false,
+      supervisorEdit: false,
+      managerEdit: false,
+      adminEdit: false,
+      viewOnly: false,
       mSelectedReqQa: [],
       showSnackbar: false,
       msgSnackbar: "",
@@ -1188,6 +1241,11 @@ export default {
           title: "วันที่ตรวจสอบ",
           align: "left",
           key: "checkIN",
+        },
+        {
+          title: "สถานะ",
+          align: "left",
+          key: "status",
         },
         {
           title: "Actions",
@@ -1293,6 +1351,26 @@ export default {
         return true; // ✅ แสดง "หน้าแรก" เสมอ
       });
     },
+    canEdit() {
+      if (!this.mSelectedReqQa) return "Unknow";
+      const userGroups = this.user.group;
+      const itemStatus = this.mSelectedReqQa.status;
+
+      const isOperator =
+        ["QA.OPERATOR", "QA.QUALITY CONTROL"].some((group) =>
+          userGroups.includes(group)
+        ) && itemStatus === "InProcess";
+
+      const isAdmin = userGroups.includes("QA.ADMIN");
+
+      const isManager = userGroups.includes("QA.MANAGER") && itemStatus !== "Completed";
+
+      const isSupervisor =
+        userGroups.includes("QA.SUPERVISOR") &&
+        !["WaitApproved", "Completed"].includes(itemStatus);
+
+      return isOperator || isAdmin || isManager || isSupervisor;
+    },
   },
   watch: {
     selectedTabTime(val) {
@@ -1383,6 +1461,9 @@ export default {
         detectWeight: this.mWeight,
         employeeID: this.user.empId,
       };
+      if (isEmpty(this.mWeight)) {
+        return this.showError("กรุณากรอกน้ำหนัก");
+      }
       this.isLoading = true;
       try {
         await pTProblemRandomDetectWeight(init);
@@ -1972,6 +2053,23 @@ export default {
     async editItemTFormList(item) {
       this.dialog = true;
       this.mSelectedReqQa = item;
+
+      const userGroups = this.user.group;
+      const itemStatus = item.status;
+
+      this.operatorEdit =
+        ["QA.OPERATOR", "QA.QUALITY CONTROL"].some((group) =>
+          userGroups.includes(group)
+        ) && itemStatus === "InProcess";
+
+      this.supervisorEdit =
+        userGroups.includes("QA.SUPERVISOR") &&
+        !["WaitApproved", "Completed"].includes(itemStatus);
+
+      this.managerEdit = userGroups.includes("QA.MANAGER") && itemStatus !== "Completed";
+
+      this.adminEdit = userGroups.includes("QA.ADMIN");
+
       await this.gTReasonDetail(this.mSelectedReqQa.formID);
       this.mLineprocess = {
         lineProcessID: item.lineProcessID,
@@ -2072,7 +2170,7 @@ export default {
       this.CreateByName = "";
       await this.gTFormList();
     },
-    async submitForm() {
+    async submitForm(status) {
       if (this.mSelectedReqQa.length == 0) {
         if (isEmpty(this.mLineprocess)) {
           return this.showError("กรุณาเลือกไลน์ผลิต");
@@ -2088,6 +2186,31 @@ export default {
         }
         if (Number(this.mInspectionDate) < Number(this.mProductionDate)) {
           return this.showError("วันที่ตรวจสอบน้อยกว่าวันที่เริ่มผลิต");
+        }
+      } else {
+        if (isEmpty(this.mWeightPacking)) {
+          return this.showError("กรุณากรอกน้ำหนักภาชนะบรรจุและส่วนประกอบ");
+        }
+        if (isEmpty(this.mStdWeight)) {
+          return this.showError("กรุณากรอกน้ำหนัก (STD)");
+        }
+        if (isEmpty(this.mBulkUsed)) {
+          return this.showError("กรุณากรอกปริมาณ Bulk ที่ใช้");
+        }
+        if (isEmpty(this.mProdPlanEA)) {
+          return this.showError("กรุณากรอกแผนการผลิต (EA)");
+        }
+        if (isEmpty(this.mExpectedProdEA)) {
+          return this.showError("กรุณากรอกคาดว่าผลิตได้ (EA)");
+        }
+        if (isEmpty(this.mExpectedProdEA)) {
+          return this.showError("กรุณากรอกจำนวนแผนการผลิต (EA)");
+        }
+        if (isEmpty(this.mStdTime)) {
+          return this.showError("กรุณากรอกเวลาบรรจุ STD (DZ/Hr.)");
+        }
+        if (isEmpty(this.mScale)) {
+          return this.showError("กรุณากรอกเครื่องชัง BL");
         }
       }
       this.isLoading = true;
@@ -2115,7 +2238,8 @@ export default {
           productionDate: this.mProductionDate,
           checkIN: this.mInspectionDate,
           checkOut: "",
-          status: "",
+          status: this.mSelectedReqQa.length == 0 ? "InProcess" : 
+          status || this.mSelectedReqQa.status,
           remark: this.mProblemResolve,
           employeeID: this.user.empId,
         };
@@ -2133,7 +2257,6 @@ export default {
             await this.ClearingPreparing(response.formID);
             this.resetForm();
             const data = await this.gTFormListById(response.formID);
-            console.log(data, "data");
             this.editItemTFormList(data);
           }
         });
