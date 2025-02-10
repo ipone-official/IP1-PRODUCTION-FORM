@@ -2189,28 +2189,28 @@ export default {
           return this.showError("วันที่ตรวจสอบน้อยกว่าวันที่เริ่มผลิต");
         }
       } else {
-        if (isEmpty(this.mWeightPacking)) {
+        if (!this.mWeightPacking) {
           return this.showError("กรุณากรอกน้ำหนักภาชนะบรรจุและส่วนประกอบ");
         }
-        if (isEmpty(this.mStdWeight)) {
+        if (!this.mStdWeight) {
           return this.showError("กรุณากรอกน้ำหนัก (STD)");
         }
-        if (isEmpty(this.mBulkUsed)) {
+        if (!this.mBulkUsed) {
           return this.showError("กรุณากรอกปริมาณ Bulk ที่ใช้");
         }
-        if (isEmpty(this.mProdPlanEA)) {
+        if (!this.mProdPlanEA) {
           return this.showError("กรุณากรอกแผนการผลิต (EA)");
         }
-        if (isEmpty(this.mExpectedProdEA)) {
+        if (!this.mExpectedProdEA) {
           return this.showError("กรุณากรอกคาดว่าผลิตได้ (EA)");
         }
-        if (isEmpty(this.mExpectedProdEA)) {
+        if (!this.mExpectedProdEA) {
           return this.showError("กรุณากรอกจำนวนแผนการผลิต (EA)");
         }
-        if (isEmpty(this.mStdTime)) {
+        if (!this.mStdTime) {
           return this.showError("กรุณากรอกเวลาบรรจุ STD (DZ/Hr.)");
         }
-        if (isEmpty(this.mScale)) {
+        if (!this.mScale) {
           return this.showError("กรุณากรอกเครื่องชัง BL");
         }
       }
