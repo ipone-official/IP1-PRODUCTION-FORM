@@ -68,7 +68,7 @@
             location="bottom"
             color="red"
             text-color="white"
-            v-if="canEdit"
+            v-if="canEdit(item)"
           >
             <template v-slot:activator="{ props }">
               <v-btn icon variant="text" v-bind="props" @click="deleteItemTFomList(item)">
@@ -1351,26 +1351,6 @@ export default {
         return true; // ✅ แสดง "หน้าแรก" เสมอ
       });
     },
-    canEdit() {
-      if (!this.mSelectedReqQa) return "Unknow";
-      const userGroups = this.user.group;
-      const itemStatus = this.mSelectedReqQa.status;
-
-      const isOperator =
-        ["QA.OPERATOR", "QA.QUALITY CONTROL"].some((group) =>
-          userGroups.includes(group)
-        ) && itemStatus === "InProcess";
-
-      const isAdmin = userGroups.includes("QA.ADMIN");
-
-      const isManager = userGroups.includes("QA.MANAGER") && itemStatus !== "Completed";
-
-      const isSupervisor =
-        userGroups.includes("QA.SUPERVISOR") &&
-        !["WaitApproved", "Completed"].includes(itemStatus);
-
-      return isOperator || isAdmin || isManager || isSupervisor;
-    },
   },
   watch: {
     selectedTabTime(val) {
@@ -1449,6 +1429,26 @@ export default {
     },
   },
   methods: {
+    canEdit(item) {
+      if (!item) return "Unknow";
+      const userGroups = this.user.group;
+      const itemStatus = item.status;
+
+      const isOperator =
+        ["QA.OPERATOR", "QA.QUALITY CONTROL"].some((group) =>
+          userGroups.includes(group)
+        ) && itemStatus === "InProcess";
+
+      const isAdmin = userGroups.includes("QA.ADMIN");
+
+      const isManager = userGroups.includes("QA.MANAGER") && itemStatus !== "Completed";
+
+      const isSupervisor =
+        userGroups.includes("QA.SUPERVISOR") &&
+        !["WaitApproved", "Completed"].includes(itemStatus);
+
+      return isOperator || isAdmin || isManager || isSupervisor;
+    },
     async plusWeight() {
       const [datePart, timePart] = this.selectedTabTime.split(" ");
       const [day, month, year] = datePart.split("/");
@@ -2128,6 +2128,7 @@ export default {
       this.mProductionDate = item.productionDate;
       this.mInspectionDate = item.checkIN;
       this.mProblemResolve = item.remark;
+      console.log(this.mWeightPacking, 'mWeightPacking')
     },
     deleteItem() {},
     async resetForm() {
