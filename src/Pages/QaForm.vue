@@ -114,39 +114,49 @@
                 </v-card>
               </v-col>
             </v-row>
-            <v-row justify="end" align="center">
-              <v-col cols="12" md="1">
-              <v-btn
-                color="success"
-                large
-                elevation="6"
-                class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
-                @click="submitForm('Completed')"
-              >
-                <v-icon left>mdi-check-circle-outline</v-icon> อนุมัติ
-              </v-btn>
+            <v-row justify="end" align="center" v-show="canEdit(mSelectedReqQa)">
+              <v-col cols="12" md="2">
+                <v-btn
+                  color="success"
+                  large
+                  elevation="6"
+                  class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
+                  @click="submitForm('Completed')"
+                  v-if="
+                    (managerEdit && mSelectedReqQa.status == 'WaitApproved') || adminEdit
+                  "
+                >
+                  <v-icon left>mdi-check-circle-outline</v-icon> อนุมัติ
+                </v-btn>
               </v-col>
-              <v-col cols="12" md="1">
-              <v-btn
-                color="success"
-                large
-                elevation="6"
-                class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
-                @click="submitForm('WaitApproved')"
-              >
-                <v-icon left>mdi-check-circle-outline</v-icon> ส่งอนุมัติ
-              </v-btn>
+              <v-col cols="12" md="2">
+                <v-btn
+                  color="success"
+                  large
+                  elevation="6"
+                  class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
+                  @click="submitForm('WaitApproved')"
+                  v-if="
+                    (supervisorEdit && mSelectedReqQa.status == 'WaitConfirm') ||
+                    adminEdit
+                  "
+                >
+                  <v-icon left>mdi-check-circle-outline</v-icon> ส่งอนุมัติ
+                </v-btn>
               </v-col>
-              <v-col cols="12" md="1">
-              <v-btn
-                color="success"
-                large
-                elevation="6"
-                class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
-                @click="submitForm('WaitConfirm')"
-              >
-                <v-icon left>mdi-check-circle-outline</v-icon> ส่งตรวจสอบ
-              </v-btn>
+              <v-col cols="12" md="2">
+                <v-btn
+                  color="success"
+                  large
+                  elevation="6"
+                  class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
+                  @click="submitForm('WaitConfirm')"
+                  v-if="
+                    (operatorEdit && mSelectedReqQa.status == 'InProcess') || adminEdit
+                  "
+                >
+                  <v-icon left>mdi-check-circle-outline</v-icon> ส่งตรวจสอบ
+                </v-btn>
               </v-col>
             </v-row>
             <!-- Tabs -->
@@ -225,6 +235,71 @@
                             />
                           </v-col>
 
+                          <v-col cols="12" sm="3">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              prepend-inner-icon="mdi-weight-kilogram"
+                              class="input-field"
+                              v-model="mWeightPacking"
+                              type="number"
+                              :readonly="mSelectedReqQa.formID"
+                            >
+                              <template v-slot:label>
+                                <span style="color: red">*</span
+                                >น้ำหนักภาชนะบรรจุและส่วนประกอบ
+                              </template>
+                            </v-text-field>
+                          </v-col>
+
+                          <v-col cols="12" sm="3">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="mStdWeight"
+                              type="number"
+                              :readonly="mSelectedReqQa.formID"
+                            >
+                              <template v-slot:label>
+                                <span style="color: red">*</span>น้ำหนัก (STD) g.
+                              </template>
+                            </v-text-field>
+                          </v-col>
+
+                          <v-col cols="12" sm="3">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="mStdTime"
+                              type="number"
+                              :readonly="mSelectedReqQa.formID"
+                            >
+                              <template v-slot:label>
+                                <span style="color: red">*</span>เวลาบรรจุ STD (DZ/Hr.)
+                              </template>
+                            </v-text-field>
+                          </v-col>
+
+                          <v-col cols="12" sm="3">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="mScale"
+                              :readonly="mSelectedReqQa.formID"
+                            >
+                              <template v-slot:label>
+                                <span style="color: red">*</span>เครื่องชัง BL
+                              </template>
+                            </v-text-field>
+                          </v-col>
+
                           <v-row v-if="mLineprocess.length != 0">
                             <!-- left Panel -->
                             <v-col cols="12" md="6">
@@ -247,9 +322,11 @@
                                       required
                                       return-object
                                       class="filter-select input-field"
-                                      :readonly="viewOnly"
+                                      :readonly="mSelectedReqQa.formID"
                                     >
-                                      <template v-slot:label> ผลิตภัณฑ์ </template>
+                                      <template v-slot:label>
+                                        <span style="color: red">*</span> ผลิตภัณฑ์
+                                      </template>
                                     </v-autocomplete>
                                   </v-col>
                                 </v-row>
@@ -267,6 +344,12 @@
                                       color="primary"
                                       block
                                       @click="selectAllClearance('Y')"
+                                      :readonly="
+                                        !operatorEdit &&
+                                        !supervisorEdit &&
+                                        !managerEdit &&
+                                        !adminEdit
+                                      "
                                     >
                                       ผ่าน ทั้งหมด
                                     </v-btn>
@@ -281,6 +364,12 @@
                                       color="red"
                                       block
                                       @click="selectAllClearance('N')"
+                                      :readonly="
+                                        !operatorEdit &&
+                                        !supervisorEdit &&
+                                        !managerEdit &&
+                                        !adminEdit
+                                      "
                                     >
                                       ไม่ผ่าน ทั้งหมด
                                     </v-btn>
@@ -318,6 +407,12 @@
                                       inline
                                       class="d-flex flex-nowrap gap-3"
                                       density="compact"
+                                      :readonly="
+                                        !operatorEdit &&
+                                        !supervisorEdit &&
+                                        !managerEdit &&
+                                        !adminEdit
+                                      "
                                     >
                                       <v-radio
                                         color="primary"
@@ -359,6 +454,12 @@
                                       color="primary"
                                       block
                                       @click="selectAllPreparing('Y')"
+                                      :readonly="
+                                        !operatorEdit &&
+                                        !supervisorEdit &&
+                                        !managerEdit &&
+                                        !adminEdit
+                                      "
                                     >
                                       ผ่าน ทั้งหมด
                                     </v-btn>
@@ -373,6 +474,12 @@
                                       color="red"
                                       block
                                       @click="selectAllPreparing('N')"
+                                      :readonly="
+                                        !operatorEdit &&
+                                        !supervisorEdit &&
+                                        !managerEdit &&
+                                        !adminEdit
+                                      "
                                     >
                                       ไม่ผ่าน ทั้งหมด
                                     </v-btn>
@@ -410,6 +517,12 @@
                                       inline
                                       class="d-flex flex-nowrap gap-3"
                                       density="compact"
+                                      :readonly="
+                                        !operatorEdit &&
+                                        !supervisorEdit &&
+                                        !managerEdit &&
+                                        !adminEdit
+                                      "
                                     >
                                       <v-radio
                                         color="primary"
@@ -437,38 +550,14 @@
                               outlined
                               dense
                               required
-                              prepend-inner-icon="mdi-weight-kilogram"
-                              class="input-field"
-                              v-model="mWeightPacking"
-                              type="number"
-                            >
-                              <template v-slot:label>
-                                <span style="color: red">*</span
-                                >น้ำหนักภาชนะบรรจุและส่วนประกอบ
-                              </template>
-                            </v-text-field>
-                          </v-col>
-                          <v-col cols="12" sm="3">
-                            <v-text-field
-                              outlined
-                              dense
-                              required
-                              class="input-field"
-                              v-model="mStdWeight"
-                              type="number"
-                            >
-                              <template v-slot:label>
-                                <span style="color: red">*</span>น้ำหนัก (STD)
-                              </template>
-                            </v-text-field>
-                          </v-col>
-                          <v-col cols="12" sm="3">
-                            <v-text-field
-                              outlined
-                              dense
-                              required
                               class="input-field"
                               v-model="mBulkUsed"
+                              :readonly="
+                                !operatorEdit &&
+                                !supervisorEdit &&
+                                !managerEdit &&
+                                !adminEdit
+                              "
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span>ปริมาณ Bulk ที่ใช้
@@ -483,6 +572,12 @@
                               class="input-field"
                               v-model="mProdPlanEA"
                               type="number"
+                              :readonly="
+                                !operatorEdit &&
+                                !supervisorEdit &&
+                                !managerEdit &&
+                                !adminEdit
+                              "
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span>แผนการผลิต (EA)
@@ -497,6 +592,12 @@
                               class="input-field"
                               v-model="mExpectedProdEA"
                               type="number"
+                              :readonly="
+                                !operatorEdit &&
+                                !supervisorEdit &&
+                                !managerEdit &&
+                                !adminEdit
+                              "
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span>คาดว่าผลิตได้ (EA)
@@ -511,39 +612,19 @@
                               class="input-field"
                               v-model="mProdPlanQtyEA"
                               type="number"
+                              :readonly="
+                                !operatorEdit &&
+                                !supervisorEdit &&
+                                !managerEdit &&
+                                !adminEdit
+                              "
                             >
                               <template v-slot:label>
                                 <span style="color: red">*</span>จำนวนแผนการผลิต (EA)
                               </template>
                             </v-text-field>
                           </v-col>
-                          <v-col cols="12" sm="3">
-                            <v-text-field
-                              outlined
-                              dense
-                              required
-                              class="input-field"
-                              v-model="mStdTime"
-                              type="number"
-                            >
-                              <template v-slot:label>
-                                <span style="color: red">*</span>เวลาบรรจุ STD (DZ/Hr.)
-                              </template>
-                            </v-text-field>
-                          </v-col>
-                          <v-col cols="12" sm="3">
-                            <v-text-field
-                              outlined
-                              dense
-                              required
-                              class="input-field"
-                              v-model="mScale"
-                            >
-                              <template v-slot:label>
-                                <span style="color: red">*</span>เครื่องชัง BL
-                              </template>
-                            </v-text-field>
-                          </v-col>
+
                           <!-- left Panel -->
 
                           <v-col cols="12" md="12">
@@ -565,14 +646,26 @@
                                     dense
                                     return-object
                                     class="filter-select input-field"
-                                    :readonly="viewOnly"
+                                    :readonly="
+                                      !operatorEdit &&
+                                      !supervisorEdit &&
+                                      !managerEdit &&
+                                      !adminEdit
+                                    "
                                   >
                                     <template v-slot:label>
                                       <span style="color: red">*</span> ประเภทรายละเอียด
                                     </template>
                                   </v-autocomplete>
                                 </v-col>
-                                <v-col cols="12" md="2">
+                                <v-col
+                                  cols="12"
+                                  :md="
+                                    mReasonDetail.reasonID == 'RS0002' || !mReasonDetail
+                                      ? 4
+                                      : 2
+                                  "
+                                >
                                   <v-autocomplete
                                     v-model="mReasonDetailItem"
                                     :items="iReasonDetailItem"
@@ -582,14 +675,23 @@
                                     dense
                                     return-object
                                     class="filter-select input-field"
-                                    :readonly="viewOnly"
+                                    :readonly="
+                                      !operatorEdit &&
+                                      !supervisorEdit &&
+                                      !managerEdit &&
+                                      !adminEdit
+                                    "
                                   >
                                     <template v-slot:label>
                                       <span style="color: red">*</span> รายการ
                                     </template>
                                   </v-autocomplete>
                                 </v-col>
-                                <v-col cols="12" md="3">
+                                <v-col
+                                  cols="12"
+                                  md="3"
+                                  v-show="mReasonDetail.reasonID == 'RS0001'"
+                                >
                                   <v-autocomplete
                                     v-model="mVendor"
                                     :items="iVendor"
@@ -600,12 +702,24 @@
                                     clearable
                                     return-object
                                     class="filter-select input-field"
-                                    :readonly="viewOnly"
+                                    :readonly="
+                                      !operatorEdit &&
+                                      !supervisorEdit &&
+                                      !managerEdit &&
+                                      !adminEdit
+                                    "
                                   >
                                     <template v-slot:label> บริษัท </template>
                                   </v-autocomplete>
                                 </v-col>
-                                <v-col cols="11" sm="3">
+                                <v-col
+                                  cols="11"
+                                  :md="
+                                    mReasonDetail.reasonID == 'RS0002' || !mReasonDetail
+                                      ? 4
+                                      : 3
+                                  "
+                                >
                                   <v-file-input
                                     v-model="FileBatch"
                                     label="อัพโหลด Batch No."
@@ -617,6 +731,12 @@
                                     :truncate-length="0"
                                     accept="image/*"
                                     @change="handleFileChange()"
+                                    :readonly="
+                                      !operatorEdit &&
+                                      !supervisorEdit &&
+                                      !managerEdit &&
+                                      !adminEdit
+                                    "
                                   />
                                 </v-col>
 
@@ -633,6 +753,12 @@
                                         variant="text"
                                         v-bind="props"
                                         @click="plusProduct()"
+                                        :readonly="
+                                          !operatorEdit &&
+                                          !supervisorEdit &&
+                                          !managerEdit &&
+                                          !adminEdit
+                                        "
                                       >
                                         <v-icon color="primary"
                                           >mdi-plus-circle-outline</v-icon
@@ -727,6 +853,12 @@
                                         variant="text"
                                         v-bind="props"
                                         @click="plusTimeSlot(selectedDateTime)"
+                                        :readonly="
+                                          !operatorEdit &&
+                                          !supervisorEdit &&
+                                          !managerEdit &&
+                                          !adminEdit
+                                        "
                                       >
                                         <v-icon color="primary"
                                           >mdi-plus-circle-outline</v-icon
@@ -827,6 +959,12 @@
                                         color="primary"
                                         block
                                         @click="selectAllVerifyProduct('Y')"
+                                        :readonly="
+                                          !operatorEdit &&
+                                          !supervisorEdit &&
+                                          !managerEdit &&
+                                          !adminEdit
+                                        "
                                       >
                                         ผ่าน ทั้งหมด
                                       </v-btn>
@@ -841,6 +979,12 @@
                                         color="red"
                                         block
                                         @click="selectAllVerifyProduct('N')"
+                                        :readonly="
+                                          !operatorEdit &&
+                                          !supervisorEdit &&
+                                          !managerEdit &&
+                                          !adminEdit
+                                        "
                                       >
                                         ไม่ผ่าน ทั้งหมด
                                       </v-btn>
@@ -879,6 +1023,12 @@
                                         class="d-flex flex-nowrap gap-3"
                                         density="compact"
                                         @change="handleSelectionChange(item)"
+                                        :readonly="
+                                          !operatorEdit &&
+                                          !supervisorEdit &&
+                                          !managerEdit &&
+                                          !adminEdit
+                                        "
                                       >
                                         <v-radio
                                           color="primary"
@@ -909,6 +1059,12 @@
                                         class="input-field"
                                         type="number"
                                         @keyup.enter="plusWeight"
+                                        :readonly="
+                                          !operatorEdit &&
+                                          !supervisorEdit &&
+                                          !managerEdit &&
+                                          !adminEdit
+                                        "
                                       >
                                         <template v-slot:label>
                                           <span style="color: red">*</span>น้ำหนัก
@@ -928,6 +1084,12 @@
                                             variant="text"
                                             v-bind="props"
                                             @click="plusWeight"
+                                            :readonly="
+                                              !operatorEdit &&
+                                              !supervisorEdit &&
+                                              !managerEdit &&
+                                              !adminEdit
+                                            "
                                           >
                                             <v-icon color="primary"
                                               >mdi-plus-circle-outline</v-icon
@@ -1062,6 +1224,9 @@
                           prepend-inner-icon="mdi-file-document-edit-outline"
                           class="input-field"
                           maxlength="500"
+                          :readonly="
+                            !operatorEdit && !supervisorEdit && !managerEdit && !adminEdit
+                          "
                         ></v-textarea>
                       </v-col>
                     </v-row>
@@ -1076,6 +1241,7 @@
         <v-card-actions class="dialog-actions justify-center mb-3">
           <!-- ✅ เพิ่ม mb-4 -->
           <v-btn
+            v-show="canEdit(mSelectedReqQa)"
             color="success"
             large
             elevation="6"
@@ -1318,12 +1484,12 @@ export default {
       mReasonDetail: "",
       iReasonDetailItem: [],
       mReasonDetailItem: "",
-      mWeightPacking: 0,
-      mProdPlanEA: 0,
-      mProdPlanQtyEA: 0,
-      mExpectedProdEA: 0,
-      mStdTime: 0,
-      mStdWeight: 0,
+      mWeightPacking: "",
+      mProdPlanEA: "",
+      mProdPlanQtyEA: "",
+      mExpectedProdEA: "",
+      mStdTime: "",
+      mStdWeight: "",
       mBulkUsed: "",
       mScale: "",
       mTLineClearance: [],
@@ -1333,7 +1499,7 @@ export default {
       mCreateOnly: false,
       mRawDataRandomDetect: [],
       CreateByName: "",
-      mWeight: 0,
+      mWeight: "",
     };
   },
   created() {
@@ -1424,6 +1590,7 @@ export default {
       }
       // อัปเดต iReasonDetailItem ด้วยรายการที่กรองได้
       this.iReasonDetailItem = filteredItems;
+      this.mVendor = "";
       // คืนค่ารายการ reasonDesc (สามารถปรับได้ตามความต้องการ)
       return filteredItems.map((item) => item.reasonDesc).join(", ");
     },
@@ -1435,16 +1602,16 @@ export default {
       const itemStatus = item.status;
 
       const isOperator =
-        ["QA.OPERATOR", "QA.QUALITY CONTROL"].some((group) =>
+        ["PDD.OPERATOR", "PDD.QUALITY CONTROL"].some((group) =>
           userGroups.includes(group)
         ) && itemStatus === "InProcess";
 
-      const isAdmin = userGroups.includes("QA.ADMIN");
+      const isAdmin = userGroups.includes("PDD.ADMIN");
 
-      const isManager = userGroups.includes("QA.MANAGER") && itemStatus !== "Completed";
+      const isManager = userGroups.includes("PDD.MANAGER") && itemStatus !== "Completed";
 
       const isSupervisor =
-        userGroups.includes("QA.SUPERVISOR") &&
+        userGroups.includes("PDD.SUPERVISOR") &&
         !["WaitApproved", "Completed"].includes(itemStatus);
 
       return isOperator || isAdmin || isManager || isSupervisor;
@@ -1458,16 +1625,16 @@ export default {
         formID: this.mSelectedReqQa.formID,
         groupDate: formattedGroupDate,
         groupTime: formattedGroupTime,
-        detectWeight: this.mWeight,
+        detectWeight: Number(this.mWeight),
         employeeID: this.user.empId,
       };
-      if (isEmpty(this.mWeight)) {
+      if (!this.mWeight && Number(this.mWeight) == 0) {
         return this.showError("กรุณากรอกน้ำหนัก");
       }
       this.isLoading = true;
       try {
         await pTProblemRandomDetectWeight(init);
-        this.mWeight = 0;
+        this.mWeight = "";
         const initGet = {
           formID: this.mSelectedReqQa.formID,
           groupDate: formattedGroupDate,
@@ -1638,13 +1805,48 @@ export default {
       };
     },
     plusTimeSlot(minutesToAdd) {
-      const dateExample = new Date(minutesToAdd);
-      const formatted = this.formatDateTime(dateExample);
+      // แปลง minutesToAdd เป็น Date
+      const newTime = new Date(minutesToAdd);
+
+      const formatted = this.formatDateTime(newTime);
+
+      // ดึง role ปัจจุบันของ user
+      const userRole = this.MapRole(this.user.group);
+
+      // กรองเฉพาะรายการที่ role ตรงกับ user
+      const userTabs = this.tabsTime.filter((tab) => tab.role === userRole);
+
+      if (userTabs.length > 0) {
+        // แปลง tabsTime.value ให้เป็นรูปแบบที่ Date เข้าใจ
+        const parseToDate = (value) => {
+          const [date, time] = value.split(" "); // แยกวันที่และเวลา
+          const [day, month, year] = date.split("/"); // แยกวัน/เดือน/ปี
+          return new Date(`${year}-${month}-${day}T${time}:00`); // รวมฟอร์แมตใหม่
+        };
+
+        // แปลงเวลาล่าสุดจาก tabsTime.value เป็น Date
+        const latestTime = userTabs
+          .map((tab) => parseToDate(tab.value)) // แปลง value เป็น Date
+          .sort((a, b) => b - a)[0]; // หาเวลาล่าสุด
+
+        if (isNaN(latestTime)) {
+          return this.showError("เวลาล่าสุดใน tabsTime ไม่ถูกต้อง");
+        }
+        // คำนวณระยะห่างระหว่าง newTime และ latestTime เป็นนาที
+        const diffMinutes = (newTime.getTime() - latestTime.getTime()) / (1000 * 60);
+
+        // เช็คว่าห่างกันมากกว่า 15 นาทีหรือไม่
+        if (diffMinutes < 45) {
+          return this.showError("กรุณาเพิ่มเวลาให้มากกว่ารายการล่าสุดอย่างน้อย 45 นาที");
+        }
+      }
+
+      // ถ้าผ่านเงื่อนไข ก็เพิ่มรายการใหม่ได้
       const newTab = {
         icon: "mdi-clock-outline",
         text: formatted.date,
         value: formatted.date + " " + formatted.time,
-        role: this.MapRole(this.user.group),
+        role: userRole,
         formattedText: `${formatted.date}<br>${formatted.time}`,
       };
 
@@ -1652,25 +1854,24 @@ export default {
       this.selectedTabTime = newTab.value;
       this.gRandomDetect(this.mLineprocess.lineProcessID);
 
-      this.selectedItemsTime = this.iVerifyProduct;
       this.selectedItemsTime = this.iVerifyProduct.map((item) => ({
         ...item,
         selected: null, // ✅ ล้างค่า selected ให้เป็น null
         DateTime: formatted.date + " " + formatted.time,
         Date: this.FormatDate(formatted.date),
         Time: formatted.time,
-        role: this.MapRole(this.user.group),
+        role: userRole,
       }));
 
       this.mCreateOnly = true;
     },
     MapRole(user) {
       const rolesPriority = [
-        "QA.ADMIN",
-        "QA.MANAGER",
-        "QA.SUPERVISOR",
-        "QA.OPERATOR",
-        "QA.QUALITY CONTROL",
+        "PDD.ADMIN",
+        "PDD.MANAGER",
+        "PDD.SUPERVISOR",
+        "PDD.OPERATOR",
+        "PDD.QUALITY CONTROL",
       ];
 
       for (const role of rolesPriority) {
@@ -1793,11 +1994,11 @@ export default {
     },
     getTabColor(role) {
       const roleColors = {
-        "QA.ADMIN": "bg-green lighten-3",
-        "QA.MANAGER": "bg-green lighten-3",
-        "QA.SUPERVISOR": "bg-green lighten-3",
-        "QA.OPERATOR": "#007fc4",
-        "QA.QUALITY CONTROL": "#f8c849",
+        "PDD.ADMIN": "bg-green lighten-3",
+        "PDD.MANAGER": "bg-green lighten-3",
+        "PDD.SUPERVISOR": "bg-green lighten-3",
+        "PDD.OPERATOR": "light-blue darken-3",
+        "PDD.QUALITY CONTROL": "bg-yellow",
       };
 
       return roleColors[role] || "bg-grey lighten-3"; // สีเริ่มต้นถ้าไม่มี role ที่ตรงกัน
@@ -2058,17 +2259,17 @@ export default {
       const itemStatus = item.status;
 
       this.operatorEdit =
-        ["QA.OPERATOR", "QA.QUALITY CONTROL"].some((group) =>
+        ["PDD.OPERATOR", "PDD.QUALITY CONTROL"].some((group) =>
           userGroups.includes(group)
         ) && itemStatus === "InProcess";
 
       this.supervisorEdit =
-        userGroups.includes("QA.SUPERVISOR") &&
+        userGroups.includes("PDD.SUPERVISOR") &&
         !["WaitApproved", "Completed"].includes(itemStatus);
 
-      this.managerEdit = userGroups.includes("QA.MANAGER") && itemStatus !== "Completed";
+      this.managerEdit = userGroups.includes("PDD.MANAGER") && itemStatus !== "Completed";
 
-      this.adminEdit = userGroups.includes("QA.ADMIN");
+      this.adminEdit = userGroups.includes("PDD.ADMIN");
 
       await this.gTReasonDetail(this.mSelectedReqQa.formID);
       this.mLineprocess = {
@@ -2117,18 +2318,17 @@ export default {
         hglV7: item.materialSize,
         hglV3: item.materialCategory,
       };
-      this.mWeightPacking = item.weightPacking;
-      this.mProdPlanEA = item.prodPlanEA;
-      this.mProdPlanQtyEA = item.prodPlanQtyEA;
-      this.mExpectedProdEA = item.expectedProdEA;
-      this.mStdTime = item.stdTime;
-      this.mStdWeight = item.stdWeight;
+      this.mWeightPacking = item.weightPacking.toString();
+      this.mProdPlanEA = item.prodPlanEA.toString();
+      this.mProdPlanQtyEA = item.prodPlanQtyEA.toString();
+      this.mExpectedProdEA = item.expectedProdEA.toString();
+      this.mStdTime = item.stdTime.toString();
+      this.mStdWeight = item.stdWeight.toString();
       this.mBulkUsed = item.bulkUsed;
       this.mScale = item.scale;
       this.mProductionDate = item.productionDate;
       this.mInspectionDate = item.checkIN;
       this.mProblemResolve = item.remark;
-      console.log(this.mWeightPacking, 'mWeightPacking')
     },
     deleteItem() {},
     async resetForm() {
@@ -2153,12 +2353,12 @@ export default {
       this.mReasonDetail = "";
       this.mReasonDetailItem = "";
       this.iReasonDetailItem = [];
-      this.mWeightPacking = 0;
-      this.mProdPlanEA = 0;
-      this.mProdPlanQtyEA = 0;
-      this.mExpectedProdEA = 0;
-      this.mStdTime = 0;
-      this.mStdWeight = 0;
+      this.mWeightPacking = "";
+      this.mProdPlanEA = "";
+      this.mProdPlanQtyEA = "";
+      this.mExpectedProdEA = "";
+      this.mStdTime = "";
+      this.mStdWeight = "";
       this.mBulkUsed = "";
       this.mScale = "";
       this.mTLineClearance = [];
@@ -2171,7 +2371,8 @@ export default {
       this.CreateByName = "";
       await this.gTFormList();
     },
-    async submitForm(status) {
+    async submitForm(flagStatus) {
+      console.log(flagStatus.length, "flagStatus");
       if (this.mSelectedReqQa.length == 0) {
         if (isEmpty(this.mLineprocess)) {
           return this.showError("กรุณาเลือกไลน์ผลิต");
@@ -2188,30 +2389,33 @@ export default {
         if (Number(this.mInspectionDate) < Number(this.mProductionDate)) {
           return this.showError("วันที่ตรวจสอบน้อยกว่าวันที่เริ่มผลิต");
         }
-      } else {
-        if (!this.mWeightPacking) {
+        if (!this.mWeightPacking && Number(this.mWeightPacking) == 0) {
           return this.showError("กรุณากรอกน้ำหนักภาชนะบรรจุและส่วนประกอบ");
         }
-        if (!this.mStdWeight) {
-          return this.showError("กรุณากรอกน้ำหนัก (STD)");
+        if (!this.mStdWeight && Number(this.mStdWeight) == 0) {
+          return this.showError("กรุณากรอกน้ำหนัก (STD) กรัม");
         }
-        if (!this.mBulkUsed) {
-          return this.showError("กรุณากรอกปริมาณ Bulk ที่ใช้");
-        }
-        if (!this.mProdPlanEA) {
-          return this.showError("กรุณากรอกแผนการผลิต (EA)");
-        }
-        if (!this.mExpectedProdEA) {
-          return this.showError("กรุณากรอกคาดว่าผลิตได้ (EA)");
-        }
-        if (!this.mExpectedProdEA) {
-          return this.showError("กรุณากรอกจำนวนแผนการผลิต (EA)");
-        }
-        if (!this.mStdTime) {
+        if (!this.mStdTime && Number(this.mStdTime) == 0) {
           return this.showError("กรุณากรอกเวลาบรรจุ STD (DZ/Hr.)");
         }
         if (!this.mScale) {
           return this.showError("กรุณากรอกเครื่องชัง BL");
+        }
+        if (isEmpty(this.mcMaterial)) {
+          return this.showError("กรุณาเลือกผลิตภัณฑ์ Line Clearance");
+        }
+      } else {
+        if (!this.mBulkUsed && Number(this.mBulkUsed) == 0) {
+          return this.showError("กรุณากรอกปริมาณ Bulk ที่ใช้");
+        }
+        if (!this.mProdPlanEA && Number(this.mProdPlanEA) == 0) {
+          return this.showError("กรุณากรอกแผนการผลิต (EA)");
+        }
+        if (!this.mExpectedProdEA && Number(this.mExpectedProdEA) == 0) {
+          return this.showError("กรุณากรอกคาดว่าผลิตได้ (EA)");
+        }
+        if (!this.mProdPlanQtyEA && Number(this.mProdPlanQtyEA) == 0) {
+          return this.showError("กรุณากรอกจำนวนแผนการผลิต (EA)");
         }
       }
       this.isLoading = true;
@@ -2228,19 +2432,23 @@ export default {
           materialColor: this.mMaterial.hgdesclV5,
           materialSize: this.mMaterial.hglV7,
           materialCategory: this.mMaterial.hglV3,
-          weightPacking: this.mWeightPacking,
-          prodPlanEA: this.mProdPlanEA,
-          prodPlanQtyEA: this.mProdPlanQtyEA,
-          expectedProdEA: this.mExpectedProdEA,
-          stdTime: this.mStdTime,
-          stdWeight: this.mStdWeight,
+          weightPacking: Number(this.mWeightPacking),
+          prodPlanEA: Number(this.mProdPlanEA),
+          prodPlanQtyEA: Number(this.mProdPlanQtyEA),
+          expectedProdEA: Number(this.mExpectedProdEA),
+          stdTime: Number(this.mStdTime),
+          stdWeight: Number(this.mStdWeight),
           bulkUsed: this.mBulkUsed,
           scale: this.mScale,
           productionDate: this.mProductionDate,
           checkIN: this.mInspectionDate,
           checkOut: "",
-          status: this.mSelectedReqQa.length == 0 ? "InProcess" : 
-          status || this.mSelectedReqQa.status,
+          status:
+            this.mSelectedReqQa.length == 0
+              ? "InProcess"
+              : flagStatus.length == undefined
+              ? this.mSelectedReqQa.status
+              : flagStatus,
           remark: this.mProblemResolve,
           employeeID: this.user.empId,
         };
