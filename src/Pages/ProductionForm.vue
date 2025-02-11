@@ -2055,9 +2055,11 @@ export default {
       return `${date[2]}${date[1]}${date[0]}`;
     },
     async gTFormList() {
+      if (Number(this.sProductionDateStart) > Number(this.sProductionDateEnd)) {
+        this.sDisabledDate = false
+        return this.showError("กรุณาเลือกวันที่ผลิตใหม่ เนื่องจากวันที่ผลิตไม่ถูกต้อง");
+      }
       this.isLoading = true;
-      console.log("📌 Fetching data from gTFormList...");
-
       try {
         // เก็บค่าเดิมของ mFilterStatus และ mFilterLineProcess (เฉพาะเมื่อมีค่า)
         const prevFilterStatus = this.mFilterStatus?.length
