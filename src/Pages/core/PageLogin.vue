@@ -81,6 +81,7 @@
 import { loginUser } from "@/services/apiService.js";
 import loading from "@/components/Loading.vue";
 import { useUserStore } from "@/stores/userStore";
+import Swal from "sweetalert2";
 
 export default {
   components: {
@@ -101,6 +102,23 @@ export default {
     };
   },
   methods: {
+    MapRole(user) {
+      const rolesPriority = [
+        "PDD.ADMIN",
+        "PDD.MANAGER",
+        "PDD.SUPERVISOR",
+        "PDD.OPERATOR",
+        "PDD.QUALITY CONTROL",
+      ];
+
+      for (const role of rolesPriority) {
+        if (user.includes(role)) {
+          return role;
+        }
+      }
+
+      return null;
+    },
     async login() {
       // ตรวจสอบว่ากรอก Username และ Password หรือไม่
       if (!this.username || !this.password) {
@@ -113,6 +131,22 @@ export default {
         // เรียกใช้งานฟังก์ชัน loginUser ด้วยข้อมูล Username และ Password
         const response = await loginUser(this.username, this.password);
         if (!response.locked) {
+          const initRole = this.MapRole(response.group);
+        if (!initRole) {
+          Swal.fire({
+            html: `คุณไม่มีสิทธิ์เข้าใช้งานระบบ Production Form`,
+            icon: "warning",
+            showCancelButton: false,
+            allowOutsideClick: false,
+            confirmButtonText: "OK",
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+              localStorage.removeItem("accessTokenQa");
+              localStorage.removeItem("refreshTokenQa");
+              this.$router.push({ name: "Login" });
+            }
+          });
+        }
           // เรียกใช้ userStore เพื่อจัดการข้อมูลผู้ใช้
           const userStore = useUserStore();
           // ตั้งค่าข้อมูลผู้ใช้ใน userStore

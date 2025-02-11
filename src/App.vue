@@ -64,6 +64,11 @@ export default {
       } else {
         await this.ValidateJwtToken();
       }
+    } else {
+      if (localStorage.getItem("accessTokenQa")) {
+        await this.ValidateJwtToken();
+        this.$router.push({ name: "ProductionForm" });
+      }
     }
   },
   computed: {
@@ -118,6 +123,7 @@ export default {
         }).then(async (result) => {
           if (result.isConfirmed) {
             localStorage.removeItem("accessTokenQa");
+            localStorage.removeItem("refreshTokenQa");
             this.$router.push({ name: "Login" });
           }
         });
@@ -131,6 +137,22 @@ export default {
       this.isLoading = true;
       try {
         const response = await getUser(username);
+        const initRole = this.MapRole(response.group);
+        if (!initRole) {
+          Swal.fire({
+            html: `คุณไม่มีสิทธิ์เข้าใช้งานระบบ Production Form`,
+            icon: "warning",
+            showCancelButton: false,
+            allowOutsideClick: false,
+            confirmButtonText: "OK",
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+              localStorage.removeItem("accessTokenQa");
+              localStorage.removeItem("refreshTokenQa");
+              this.$router.push({ name: "Login" });
+            }
+          });
+        }
         const userStore = useUserStore();
         // ตั้งค่าข้อมูลผู้ใช้ใน userStore
         userStore.login({
@@ -167,6 +189,23 @@ export default {
         this.isLoading = false;
       }
     },
+    MapRole(user) {
+      const rolesPriority = [
+        "PDD.ADMIN",
+        "PDD.MANAGER",
+        "PDD.SUPERVISOR",
+        "PDD.OPERATOR",
+        "PDD.QUALITY CONTROL",
+      ];
+
+      for (const role of rolesPriority) {
+        if (user.includes(role)) {
+          return role;
+        }
+      }
+
+      return null;
+    },
     toggleDrawer() {
       this.isDrawerOpen = !this.isDrawerOpen;
     },
@@ -189,7 +228,8 @@ export default {
   color: #2c3e50;
 }
 
-body, #app {
+body,
+#app {
   font-family: "IBMPlexSansThai", sans-serif;
 }
 
