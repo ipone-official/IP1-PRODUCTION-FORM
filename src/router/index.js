@@ -1,16 +1,16 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import Login from '@/Pages/core/PageLogin.vue';
 import Main from '@/Pages/MainPage.vue';
-import QaForm from '@/Pages/QaForm.vue';
+import ProductionForm from '@/Pages/ProductionForm.vue';
 import Profile from '@/Pages/Profile.vue';
 import { isTokenNearExpiration, RenewToken } from "@/services/apiService.js";
 const routes = [
   {
-    path: '/QaForm',
-    name: 'QaForm',
-    component: QaForm,
+    path: '/ProductionForm',
+    name: 'ProductionForm',
+    component: ProductionForm,
     meta: {
-      breadcrumb: [{ name: 'QaForm', link: '/QaForm' },
+      breadcrumb: [{ name: 'ProductionForm', link: '/ProductionForm' },
       ],
     },
   },

@@ -7,13 +7,13 @@
         transition="scale-transition"
         offset-y
         full-width
+       :disabled="disabled"
       >
         <template #activator="{ props }">
           <v-text-field
             v-bind="props"
             v-model="displayDate"
             :label="label"
-            readonly
             outlined
             dense
             append-inner-icon="mdi-calendar-range"
@@ -42,6 +42,10 @@ export default {
     modelValue: {
       type: [String, Number],
       default: null, // ค่าเริ่มต้นในรูปแบบ yyyyMMdd
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     },
     label: {
       type: String,

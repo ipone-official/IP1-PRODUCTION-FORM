@@ -22,17 +22,17 @@
 
     <!-- Navigation Links -->
     <v-list density="compact" nav>
-      <!-- QaForm -->
+      <!-- ProductionForm -->
       <v-list-item
         class="menu-item"
-        @click="navigateTo('/QaForm')"
+        @click="navigateTo('/ProductionForm')"
         dense
         rounded="shaped"
-        value="QaForm"
+        value="ProductionForm"
       >
         <v-list-item-title class="menu-title">
           <v-icon>mdi-document</v-icon>
-          QaForm
+          Production Form
         </v-list-item-title>
       </v-list-item>
     </v-list>
