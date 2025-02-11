@@ -29,6 +29,26 @@ export const gLineProcess = async () => {
     }
   };
 
+  
+  export const gLineProcessNotWorking = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessTokenQa");
+      // ตรวจสอบว่า accessToken มีค่าหรือไม่
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
+      const response = await api.get(
+        `QA/v1/gLineProcessNotWorking`,
+      );
+  
+      return response.data;
+    } catch (error) {
+      console.error('Error in gLineProcessNotWorking:', error);
+      throw error;
+    }
+  };
+
 export const gVendor = async () => {
     try {
       const accessToken = localStorage.getItem("accessTokenQa");
@@ -310,7 +330,7 @@ export const gVendor = async () => {
     }
   };
 
-  export const gTFormList = async () => {
+  export const gTFormList = async (data) => {
     try {
       const accessToken = localStorage.getItem("accessTokenQa");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
@@ -318,8 +338,8 @@ export const gVendor = async () => {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
-      const response = await api.get(
-        `QA/v1/gTFormList`,
+      const response = await api.post(
+        `QA/v1/gTFormList`, data
       );
   
       return response.data;

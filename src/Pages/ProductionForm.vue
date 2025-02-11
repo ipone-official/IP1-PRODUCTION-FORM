@@ -2,8 +2,100 @@
 <!-- eslint-disable vue/valid-v-slot -->
 <template>
   <v-container class="table-page">
-    <v-row dense align="center" justify="space-between" class="filter-row">
-      <v-col cols="12" sm="4" md="4" class="filter-col">
+    <v-row dense align="center" justify="space-start" class="filter-row">
+      <v-col cols="8" sm="3">
+        <CustomDatepicker
+          v-model="sProductionDateStart"
+          label="วันที่ผลิต"
+          :disabled="sDisabledDate"
+          class="filter-select input-field"
+        />
+      </v-col>
+      ถึง
+      <v-col cols="8" sm="3">
+        <CustomDatepicker
+          v-model="sProductionDateEnd"
+          label="วันที่ผลิต"
+          :disabled="sDisabledDate"
+          class="filter-select input-field"
+        />
+      </v-col>
+      <v-tooltip top color="teal" v-if="!sDisabledDate">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            fab
+            small
+            color="#007fc4"
+            dark
+            class="ma-2 small-export-button"
+            v-bind="attrs"
+            v-on="on"
+            @click="(sDisabledDate = true), gTFormList()"
+          >
+            <v-icon size="20">mdi-magnify</v-icon>
+          </v-btn>
+        </template>
+        <span>Search</span>
+      </v-tooltip>
+      <v-tooltip top color="teal" v-else-if="sDisabledDate">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            fab
+            small
+            color="red"
+            dark
+            class="ma-2 small-export-button"
+            v-bind="attrs"
+            v-on="on"
+            @click="closeSearch"
+          >
+            <v-icon size="20">mdi-close</v-icon>
+          </v-btn>
+        </template>
+        <span>Close Search</span>
+      </v-tooltip>
+    </v-row>
+
+    <v-row
+      dense
+      align="center"
+      justify="space-between"
+      class="filter-row"
+      v-if="sDisabledDate"
+    >
+      <v-col cols="12" sm="4" md="3" class="filter-col">
+        <v-autocomplete
+          v-model="mFilterLineProcess"
+          :items="iFilterLineProcess"
+          label="ไลน์ผลิต"
+          item-title="displayLineProcessName"
+          item-value="lineProcessID"
+          outlined
+          dense
+          class="filter-select input-field custom-autocomplete"
+          return-object
+          multiple
+          :color="'primary'"
+          active-class="custom-active-class"
+        ></v-autocomplete>
+      </v-col>
+      <v-col cols="12" sm="4" md="3" class="filter-col">
+        <v-autocomplete
+          v-model="mFilterStatus"
+          :items="iFilterStatus"
+          label="สถานะ"
+          item-title="displayStatus"
+          item-value="status"
+          outlined
+          dense
+          class="filter-select input-field custom-autocomplete"
+          return-object
+          multiple
+          :color="'primary'"
+          active-class="custom-active-class"
+        ></v-autocomplete>
+      </v-col>
+      <v-col cols="12" sm="4" md="5" class="filter-col">
         <v-text-field
           v-model="mSearch"
           label="Search"
@@ -15,12 +107,25 @@
       </v-col>
     </v-row>
 
-    <v-btn color="primary" class="fab" large absolute bottom right @click="dialog = true">
+    <v-btn color="primary" class="fab" large absolute bottom right @click="oPenDialog">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
 
-    <!-- Table -->
+    <!-- Toolbar จะแสดงเสมอ -->
+    <v-toolbar flat class="custom-toolbar">
+      <v-toolbar-title class="centered-title">รายการเอกสาร</v-toolbar-title>
+      <v-tooltip text="Refresh" location="bottom" color="blue" text-color="white">
+        <template #activator="{ props }">
+          <v-btn icon variant="text" v-bind="props" @click="gTFormList">
+            <v-icon color="blue">mdi-refresh</v-icon>
+          </v-btn>
+        </template>
+      </v-tooltip>
+    </v-toolbar>
+
+    <!-- Table (แสดงเมื่อ listQaReq มีค่า) -->
     <v-data-table
+      v-if="listQaReq.length != 0"
       :headers="headersListQa"
       :items="listQaReq"
       :search="mSearch"
@@ -28,18 +133,6 @@
       dense
       rounded
     >
-      <template v-slot:top>
-        <v-toolbar flat class="custom-toolbar">
-          <v-toolbar-title class="centered-title">รายการเอกสาร</v-toolbar-title>
-          <v-tooltip text="Refresh" location="bottom" color="blue" text-color="white">
-            <template v-slot:activator="{ props }">
-              <v-btn icon variant="text" v-bind="props" @click="gTFormList">
-                <v-icon color="blue">mdi-refresh</v-icon>
-              </v-btn>
-            </template>
-          </v-tooltip>
-        </v-toolbar>
-      </template>
       <template v-slot:item.productionDate="{ item }">
         <div>
           {{ item.productionDate ? formatDate(item.productionDate) : "-" }}
@@ -84,6 +177,7 @@
         </div>
       </template>
     </v-data-table>
+
     <v-dialog v-model="dialog" fullscreen>
       <v-card class="dialog-card">
         <!-- Header -->
@@ -1188,12 +1282,12 @@
                           class="input-field"
                           maxlength="255"
                           :readonly="
-                                !operatorEdit &&
-                                !supervisorEdit &&
-                                !managerEdit &&
-                                !adminEdit &&
-                                !flagCreate
-                              "
+                            !operatorEdit &&
+                            !supervisorEdit &&
+                            !managerEdit &&
+                            !adminEdit &&
+                            !flagCreate
+                          "
                         ></v-textarea>
                       </v-col>
                     </v-row>
@@ -1268,6 +1362,7 @@ import CustomDatepicker from "@/components/CustomDatepicker.vue";
 import DateTimePicker from "@/components/DateTimePicker.vue";
 import {
   gLineProcess,
+  gLineProcessNotWorking,
   gVendor,
   gPreparing,
   gLineClearance,
@@ -1309,6 +1404,9 @@ export default {
   },
   data() {
     return {
+      sDisabledDate: false,
+      sProductionDateStart: this.getFirstDayOfMonthYYYYMMDD(),
+      sProductionDateEnd: this.getTodayYYYYMMDD(),
       operatorEdit: false,
       supervisorEdit: false,
       managerEdit: false,
@@ -1390,6 +1488,7 @@ export default {
       ],
 
       listQaReq: [],
+      rawListQaReq: [],
       headersDProduct: [
         {
           title: "รายละเอียด",
@@ -1468,13 +1567,14 @@ export default {
       mRawDataRandomDetect: [],
       CreateByName: "",
       mWeight: "",
+      mFilterStatus: null,
+      mFilterLineProcess: null,
     };
   },
   created() {
     this.gLineProcess();
     this.gVendor();
     this.gMaterialMaster();
-    this.gTFormList();
   },
   computed: {
     filteredTabs() {
@@ -1485,8 +1585,39 @@ export default {
         return true; // ✅ แสดง "หน้าแรก" เสมอ
       });
     },
+    iFilterLineProcess() {
+      // ใช้ Map เพื่อลดค่า lineProcessID ที่ซ้ำ และจับคู่กับ lineProcessName ที่ถูกต้อง
+      const lineProcessMap = new Map();
+
+      this.rawListQaReq.forEach((item) => {
+        if (item.lineProcessID && item.lineProcessName) {
+          lineProcessMap.set(item.lineProcessID, item.lineProcessName);
+        }
+      });
+
+      // แปลง Map เป็นอาร์เรย์ของ Object สำหรับ `v-autocomplete`
+      return Array.from(lineProcessMap, ([lineProcessID, lineProcessName]) => ({
+        lineProcessID,
+        displayLineProcessName: lineProcessName,
+      }));
+    },
+    iFilterStatus() {
+      const uniqueStatuses = [...new Set(this.rawListQaReq.map((item) => item.status))];
+      return uniqueStatuses
+        .filter((status) => status.trim() !== "") // ลบค่า `status` ที่ว่างออก
+        .map((status) => ({
+          status: status,
+          displayStatus: this.translateStatus(status), // แปลงเป็นภาษาไทย
+        }));
+    },
   },
   watch: {
+    mFilterStatus() {
+      this.filterListQaReq();
+    },
+    mFilterLineProcess() {
+      this.filterListQaReq();
+    },
     selectedTabTime(val) {
       if (!val) return "Unknow";
 
@@ -1564,23 +1695,74 @@ export default {
     },
   },
   methods: {
+    filterListQaReq() {
+      if (
+        (!this.mFilterStatus || this.mFilterStatus.length === 0) &&
+        (!this.mFilterLineProcess || this.mFilterLineProcess.length === 0)
+      ) {
+        // 🔹 กรณีไม่มีการเลือก filter ทั้งสองตัว
+        this.listQaReq = this.rawListQaReq;
+      } else if (
+        this.mFilterStatus &&
+        this.mFilterStatus.length > 0 &&
+        (!this.mFilterLineProcess || this.mFilterLineProcess.length === 0)
+      ) {
+        // 🔹 กรณีเลือกแค่ Status อย่างเดียว
+        this.listQaReq = this.rawListQaReq.filter((element) =>
+          this.mFilterStatus.some((status) => element.status === status.status)
+        );
+      } else if (
+        (!this.mFilterStatus || this.mFilterStatus.length === 0) &&
+        this.mFilterLineProcess &&
+        this.mFilterLineProcess.length > 0
+      ) {
+        // 🔹 กรณีเลือกแค่ LineProcess อย่างเดียว
+        this.listQaReq = this.rawListQaReq.filter((element) =>
+          this.mFilterLineProcess.some(
+            (lineProcess) => element.lineProcessID === lineProcess.lineProcessID
+          )
+        );
+      } else {
+        // 🔹 กรณีเลือกทั้ง Status และ LineProcess
+        this.listQaReq = this.rawListQaReq.filter(
+          (element) =>
+            this.mFilterStatus.some((status) => element.status === status.status) &&
+            this.mFilterLineProcess.some(
+              (lineProcess) => element.lineProcessID === lineProcess.lineProcessID
+            )
+        );
+      }
+    },
+    getFirstDayOfMonthYYYYMMDD() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      return `${yyyy}${mm}01`; // วันที่ 1 ของเดือน
+    },
+    getTodayYYYYMMDD() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      return `${yyyy}${mm}${dd}`;
+    },
     translateStatus(status) {
-    const statusMapping = {
-      InProcess: "ระหว่างดำเนินการ",
-      WaitConfirm: "ระหว่างตรวจสอบ",
-      WaitApprove: "ระหว่างอนุมัติ",
-      Completed: "เสร็จสิ้น"
-    };
-    return statusMapping[status] || "สถานะไม่ทราบ"; // กรณี status ไม่มีใน mapping
-  },
-  translateFlagStatus(status) {
-    const statusMapping = {
-      WaitConfirm: "ส่งตรวจสอบ",
-      WaitApprove: "ส่งอนุมัติ",
-      Completed: "เสร็จสิ้น"
-    };
-    return statusMapping[status] || "สถานะไม่ทราบ"; // กรณี status ไม่มีใน mapping
-  },
+      const statusMapping = {
+        InProcess: "ระหว่างดำเนินการ",
+        WaitConfirm: "ระหว่างตรวจสอบ",
+        WaitApprove: "ระหว่างอนุมัติ",
+        Completed: "เสร็จสิ้น",
+      };
+      return statusMapping[status] || "สถานะไม่ทราบ"; // กรณี status ไม่มีใน mapping
+    },
+    translateFlagStatus(status) {
+      const statusMapping = {
+        WaitConfirm: "ส่งตรวจสอบ",
+        WaitApprove: "ส่งอนุมัติ",
+        Completed: "เสร็จสิ้น",
+      };
+      return statusMapping[status] || "สถานะไม่ทราบ"; // กรณี status ไม่มีใน mapping
+    },
     canEdit(item) {
       if (item.length == 0) return true;
       const userGroups = this.user.group;
@@ -1874,14 +2056,45 @@ export default {
     },
     async gTFormList() {
       this.isLoading = true;
-      this.listQaReq = [];
+      console.log("📌 Fetching data from gTFormList...");
+
       try {
-        const response = await gTFormList();
+        // เก็บค่าเดิมของ mFilterStatus และ mFilterLineProcess (เฉพาะเมื่อมีค่า)
+        const prevFilterStatus = this.mFilterStatus?.length
+          ? [...this.mFilterStatus]
+          : null;
+        const prevFilterLineProcess = this.mFilterLineProcess?.length
+          ? [...this.mFilterLineProcess]
+          : null;
+
+        // เคลียร์ค่าของ list ก่อนโหลดข้อมูลใหม่
+        this.listQaReq = [];
+        this.rawListQaReq = [];
+
+        // ตั้งค่า request
+        const init = {
+          productionDateStart: this.sProductionDateStart,
+          productionDateEnd: this.sProductionDateEnd,
+          employeeID: this.user.empId,
+          role: this.MapRole(this.user.group),
+        };
+
+        // เรียก API
+        const response = await gTFormList(init);
+
+        // อัปเดตข้อมูล
+        this.rawListQaReq = response.results;
         this.listQaReq = response.results;
+
+        // ✅ คืนค่าเก่าของ mFilterStatus และ mFilterLineProcess (ถ้ามี)
+        this.$nextTick(() => {
+          if (prevFilterStatus) this.mFilterStatus = prevFilterStatus;
+          if (prevFilterLineProcess) this.mFilterLineProcess = prevFilterLineProcess;
+        });
       } catch (e) {
-        console.log(e);
+        console.error("❌ Error fetching data:", e);
       } finally {
-        // ปิดการแสดงผล Loading ในทุกกรณี
+        // ปิดการแสดงผล Loading
         this.isLoading = false;
       }
     },
@@ -2185,11 +2398,32 @@ export default {
         this.isLoading = false;
       }
     },
+    async oPenDialog() {
+      this.dialog = true;
+      if (this.flagCreate) {
+        await this.gLineProcessNotWorking();
+      } else {
+        await this.gLineProcess();
+      }
+    },
     async gLineProcess() {
       this.isLoading = true;
       this.iLineprocess = [];
       try {
         const response = await gLineProcess();
+        this.iLineprocess = response.results;
+      } catch (e) {
+        console.log(e);
+      } finally {
+        // ปิดการแสดงผล Loading ในทุกกรณี
+        this.isLoading = false;
+      }
+    },
+    async gLineProcessNotWorking() {
+      this.isLoading = true;
+      this.iLineprocess = [];
+      try {
+        const response = await gLineProcessNotWorking();
         this.iLineprocess = response.results;
       } catch (e) {
         console.log(e);
@@ -2321,6 +2555,13 @@ export default {
       this.mInspectionDate = item.checkIN;
       this.mProblemResolve = item.remark;
     },
+    closeSearch() {
+      this.sDisabledDate = false;
+      this.mFilterStatus = null;
+      this.mFilterLineProcess = null;
+      this.listQaReq = [];
+      this.rawListQaReq = [];
+    },
     async resetForm() {
       this.dialog = false;
       this.mSelectedReqQa = [];
@@ -2365,7 +2606,9 @@ export default {
       this.adminEdit = false;
       this.viewOnly = false;
       this.flagCreate = true;
-      await this.gTFormList();
+      if (this.sDisabledDate) {
+        await this.gTFormList();
+      }
     },
     async submitForm(flagStatus) {
       if (this.mSelectedReqQa.length == 0) {
@@ -2414,22 +2657,24 @@ export default {
         }
       }
       if (flagStatus.length !== undefined) {
-    this.dialog = false;
+        this.dialog = false;
 
-    const result = await Swal.fire({
-      html: `คุณแน่ใจหรือไม่ว่าต้องการ <strong>${this.translateFlagStatus(flagStatus)}</strong> <br> เลขที่เอกสาร : ${this.mSelectedReqQa.formID} ?`,
-      icon: "warning",
-      showCancelButton: true,
-      allowOutsideClick: false,
-      confirmButtonText: "OK",
-    });
+        const result = await Swal.fire({
+          html: `คุณแน่ใจหรือไม่ว่าต้องการ <strong>${this.translateFlagStatus(
+            flagStatus
+          )}</strong> <br> เลขที่เอกสาร : ${this.mSelectedReqQa.formID} ?`,
+          icon: "warning",
+          showCancelButton: true,
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
 
-    if (!result.isConfirmed) {
-      this.dialog = true;
-      return; // ❌ หยุดการทำงานที่นี่ ถ้าผู้ใช้กดยกเลิก
-    }
-  }
-    this.isLoading = true;
+        if (!result.isConfirmed) {
+          this.dialog = true;
+          return; // ❌ หยุดการทำงานที่นี่ ถ้าผู้ใช้กดยกเลิก
+        }
+      }
+      this.isLoading = true;
       try {
         const init = {
           formID: this.mSelectedReqQa.length == 0 ? "" : this.mSelectedReqQa.formID,
