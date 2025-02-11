@@ -1025,6 +1025,7 @@
                                         color="primary"
                                         block
                                         @click="selectAllVerifyProduct('Y')"
+                                        :readonly="!operatorEdit || !flagEdit"
                                       >
                                         ผ่าน ทั้งหมด
                                       </v-btn>
@@ -1039,6 +1040,7 @@
                                         color="red"
                                         block
                                         @click="selectAllVerifyProduct('N')"
+                                        :readonly="!operatorEdit || !flagEdit"
                                       >
                                         ไม่ผ่าน ทั้งหมด
                                       </v-btn>
@@ -1078,7 +1080,7 @@
                                         density="compact"
                                         @change="handleSelectionChange(item)"
                                         :readonly="
-                                          !operatorEdit &&
+                                          (!operatorEdit || !flagEdit) &&
                                           !supervisorEdit &&
                                           !managerEdit &&
                                           !adminEdit &&
@@ -1118,6 +1120,7 @@
                                         class="input-field"
                                         type="number"
                                         @keyup.enter="plusWeight"
+                                        :readonly="!operatorEdit || !flagEdit"
                                       >
                                         <template v-slot:label>
                                           <span style="color: red">*</span>น้ำหนัก
@@ -1137,6 +1140,7 @@
                                             variant="text"
                                             v-bind="props"
                                             @click="plusWeight"
+                                            :readonly="!operatorEdit || !flagEdit"
                                           >
                                             <v-icon color="primary"
                                               >mdi-plus-circle-outline</v-icon
@@ -1169,6 +1173,7 @@
                                                 variant="text"
                                                 v-bind="props"
                                                 @click="deleteItemWeight(item)"
+                                                :readonly="!operatorEdit || !flagEdit"
                                               >
                                                 <v-icon color="red">mdi-delete</v-icon>
                                               </v-btn>
@@ -1404,6 +1409,7 @@ export default {
   },
   data() {
     return {
+      flagEdit: false,
       sDisabledDate: false,
       sProductionDateStart: this.getFirstDayOfMonthYYYYMMDD(),
       sProductionDateEnd: this.getTodayYYYYMMDD(),
@@ -1644,8 +1650,10 @@ export default {
           const matchedItem = filterRandomDetact.find(
             (lc) => lc.problemDetectID === item.problemDetectID
           );
+          console.log(matchedItem, "matchedItem");
           if (matchedItem) {
             this.CreateByName = matchedItem.createByName;
+            this.flagEdit = matchedItem.createBy == this.user.empId;
           }
           return {
             ...item,
@@ -1685,10 +1693,12 @@ export default {
       // ถ้าหาไม่เจอ ให้คืนค่า "Unknown"
       if (filteredItems.length === 0) {
         this.iReasonDetailItem = []; // อัปเดต iReasonDetailItem เป็นค่าว่าง
+        this.mReasonDetailItem = "";
         return "Unknown";
       }
       // อัปเดต iReasonDetailItem ด้วยรายการที่กรองได้
       this.iReasonDetailItem = filteredItems;
+      this.mReasonDetailItem = "";
       this.mVendor = "";
       // คืนค่ารายการ reasonDesc (สามารถปรับได้ตามความต้องการ)
       return filteredItems.map((item) => item.reasonDesc).join(", ");
@@ -2056,7 +2066,7 @@ export default {
     },
     async gTFormList() {
       if (Number(this.sProductionDateStart) > Number(this.sProductionDateEnd)) {
-        this.sDisabledDate = false
+        this.sDisabledDate = false;
         return this.showError("กรุณาเลือกวันที่ผลิตใหม่ เนื่องจากวันที่ผลิตไม่ถูกต้อง");
       }
       this.isLoading = true;
@@ -2072,7 +2082,7 @@ export default {
         // เคลียร์ค่าของ list ก่อนโหลดข้อมูลใหม่
         this.listQaReq = [];
         this.rawListQaReq = [];
-
+        this.sDisabledDate = true
         // ตั้งค่า request
         const init = {
           productionDateStart: this.sProductionDateStart,
@@ -2168,8 +2178,8 @@ export default {
           this.mLineprocess.lineProcessID,
           this.mReasonDetail.reasonID,
           this.mReasonDetailItem.reasonDescID,
-          this.mVendor.vendorNo || "",
-          this.mVendor.vendorDesc || "",
+          this.mVendor.vendorNo || "-",
+          this.mVendor.vendorDesc || "-",
           this.user.empId
         );
         this.gTReasonDetail(this.mSelectedReqQa.formID);
@@ -2608,6 +2618,7 @@ export default {
       this.adminEdit = false;
       this.viewOnly = false;
       this.flagCreate = true;
+      this.flagEdit = false;
       if (this.sDisabledDate) {
         await this.gTFormList();
       }
