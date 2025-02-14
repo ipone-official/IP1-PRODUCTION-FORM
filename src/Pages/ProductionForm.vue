@@ -427,7 +427,7 @@
                                   <v-icon class="header-icon" color="primary"
                                     >mdi-clipboard-check-outline</v-icon
                                   >
-                                  <h3 class="header-title">Line Clearance</h3>
+                                  <h3 class="header-title">รายการสินค้าผลิตก่อนหน้า</h3>
                                 </div>
                                 <v-row>
                                   <v-col cols="12" md="12">
@@ -547,7 +547,7 @@
                                   <v-icon class="header-icon" color="primary"
                                     >mdi-cogs</v-icon
                                   >
-                                  <h3 class="header-title">Preparing Machine</h3>
+                                  <h3 class="header-title">จัดเตรียมเครื่องจักร</h3>
                                 </div>
 
                                 <!-- ปุ่มเลือกทั้งหมด -->
@@ -3118,7 +3118,7 @@ export default {
           return this.showError("กรุณากรอกเครื่องชัง BL");
         }
         if (isEmpty(this.mcMaterial)) {
-          return this.showError("กรุณาเลือกผลิตภัณฑ์ Line Clearance");
+          return this.showError("กรุณาเลือกผลิตภัณฑ์ รายการสินค้าผลิตก่อนหน้า");
         }
       } else {
         if (!this.mBulkUsed && Number(this.mBulkUsed) == 0) {
