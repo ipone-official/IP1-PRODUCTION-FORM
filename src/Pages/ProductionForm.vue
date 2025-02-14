@@ -343,8 +343,12 @@
                               required
                               prepend-inner-icon="mdi-weight-kilogram"
                               class="input-field"
-                              v-model="mWeightPacking"
-                              type="number"
+                              v-model="formattedWeightPacking"
+                              @input="updateWeightPacking"
+                              @keypress="keyFilter.numbersOnly"
+                              type="text"
+                              inputmode="decimal"
+                              pattern="[0-9]*"
                               :readonly="Boolean(mSelectedReqQa.formID)"
                             >
                               <template v-slot:label>
@@ -360,8 +364,12 @@
                               dense
                               required
                               class="input-field"
-                              v-model="mStdWeight"
-                              type="number"
+                              v-model="formattedStdWeight"
+                              type="text"
+                              inputmode="decimal"
+                              pattern="[0-9]*"
+                              @input="updateStdWeight"
+                              @keypress="keyFilter.numbersOnly"
                               :readonly="Boolean(mSelectedReqQa.formID)"
                             >
                               <template v-slot:label>
@@ -376,8 +384,12 @@
                               dense
                               required
                               class="input-field"
-                              v-model="mStdTime"
-                              type="number"
+                              v-model="formattedStdTime"
+                              type="text"
+                              inputmode="decimal"
+                              pattern="[0-9]*"
+                              @input="updateStdTime"
+                              @keypress="keyFilter.numbersOnly"
                               :readonly="Boolean(mSelectedReqQa.formID)"
                             >
                               <template v-slot:label>
@@ -627,13 +639,18 @@
                           </v-row>
                         </v-row>
                         <v-row v-else-if="tab === 'Detail'" dense>
-                          <v-col cols="12" sm="3">
+                          <v-col cols="12" sm="4">
                             <v-text-field
                               outlined
                               dense
                               required
                               class="input-field"
-                              v-model="mBulkUsed"
+                              v-model="formattedBulkUsed"
+                              type="text"
+                              inputmode="decimal"
+                              pattern="[0-9]*"
+                              @input="updateBulkUsed"
+                              @keypress="keyFilter.numbersOnly"
                               :readonly="
                                 !operatorEdit &&
                                 !supervisorEdit &&
@@ -647,14 +664,71 @@
                               </template>
                             </v-text-field>
                           </v-col>
-                          <v-col cols="12" sm="3">
+
+                          <v-col cols="12" sm="4">
                             <v-text-field
                               outlined
                               dense
                               required
                               class="input-field"
-                              v-model="mProdPlanEA"
-                              type="number"
+                              v-model="formattedBulkQuoted"
+                              type="text"
+                              inputmode="decimal"
+                              pattern="[0-9]*"
+                              @input="updateBulkQuoted"
+                              @keypress="keyFilter.numbersOnly"
+                              :readonly="
+                                !operatorEdit &&
+                                !supervisorEdit &&
+                                !managerEdit &&
+                                !adminEdit &&
+                                !flagCreate
+                              "
+                            >
+                              <template v-slot:label>
+                                <span style="color: red">*</span>ปริมาณ Bulk ยกมา
+                              </template>
+                            </v-text-field>
+                          </v-col>
+
+                          <v-col cols="12" sm="4">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="formattedBulkActually"
+                              type="text"
+                              inputmode="decimal"
+                              pattern="[0-9]*"
+                              @input="updateBulkActually"
+                              @keypress="keyFilter.numbersOnly"
+                              :readonly="
+                                !operatorEdit &&
+                                !supervisorEdit &&
+                                !managerEdit &&
+                                !adminEdit &&
+                                !flagCreate
+                              "
+                            >
+                              <template v-slot:label>
+                                <span style="color: red">*</span>ปริมาณ Bulk ที่ใช้จริง
+                              </template>
+                            </v-text-field>
+                          </v-col>
+
+                          <v-col cols="12" sm="4">
+                            <v-text-field
+                              outlined
+                              dense
+                              required
+                              class="input-field"
+                              v-model="formattedProdPlanEA"
+                              type="text"
+                              inputmode="numeric"
+                              pattern="[0-9]*"
+                              @input="updateProdPlanEA"
+                              @keypress="keyFilter.numbersOnlyInteger"
                               :readonly="
                                 !operatorEdit &&
                                 !supervisorEdit &&
@@ -668,14 +742,19 @@
                               </template>
                             </v-text-field>
                           </v-col>
-                          <v-col cols="12" sm="3">
+
+                          <v-col cols="12" sm="4">
                             <v-text-field
                               outlined
                               dense
                               required
                               class="input-field"
-                              v-model="mExpectedProdEA"
-                              type="number"
+                              v-model="formattedExpectedProdEA"
+                              type="text"
+                              inputmode="numeric"
+                              pattern="[0-9]*"
+                              @input="updateExpectedProdEA"
+                              @keypress="keyFilter.numbersOnlyInteger"
                               :readonly="
                                 !operatorEdit &&
                                 !supervisorEdit &&
@@ -689,14 +768,19 @@
                               </template>
                             </v-text-field>
                           </v-col>
-                          <v-col cols="12" sm="3">
+
+                          <v-col cols="12" sm="4">
                             <v-text-field
                               outlined
                               dense
                               required
                               class="input-field"
-                              v-model="mProdPlanQtyEA"
-                              type="number"
+                              v-model="formattedProdPlanQtyEA"
+                              type="text"
+                              inputmode="numeric"
+                              pattern="[0-9]*"
+                              @input="updateProdPlanQtyEA"
+                              @keypress="keyFilter.numbersOnlyInteger"
                               :readonly="
                                 !operatorEdit &&
                                 !supervisorEdit &&
@@ -1112,14 +1196,14 @@
                                       v-if="canEdit(mSelectedReqQa)"
                                     >
                                       <v-text-field
-                                        v-model="mWeight"
+                                        v-model="formattedWeight"
                                         outlined
                                         dense
                                         required
                                         prepend-inner-icon="mdi-weight-lifter"
                                         class="input-field"
-                                        type="number"
-                                        @keyup.enter="plusWeight"
+                                        type="text"
+                                        @input="updateWeight"
                                         :readonly="!operatorEdit || !flagEdit"
                                       >
                                         <template v-slot:label>
@@ -1365,6 +1449,8 @@ import loading from "@/components/Loading.vue";
 import { useUserStore } from "@/stores/userStore";
 import CustomDatepicker from "@/components/CustomDatepicker.vue";
 import DateTimePicker from "@/components/DateTimePicker.vue";
+import keyFilter from "@/utils/keyFilter.js";
+
 import {
   gLineProcess,
   gLineProcessNotWorking,
@@ -1409,6 +1495,7 @@ export default {
   },
   data() {
     return {
+      keyFilter,
       flagEdit: false,
       sDisabledDate: false,
       sProductionDateStart: this.getFirstDayOfMonthYYYYMMDD(),
@@ -1533,7 +1620,7 @@ export default {
         {
           title: "น้ำหนัก",
           align: "left",
-          key: "detectWeight",
+          key: "detectWeightFormatted",
         },
         {
           title: "Actions",
@@ -1563,7 +1650,9 @@ export default {
       mExpectedProdEA: "",
       mStdTime: "",
       mStdWeight: "",
-      mBulkUsed: "",
+      mBulkUsed: 0,
+      mBulkQuoted: 0,
+      mBulkActually: 0,
       mScale: "",
       mTLineClearance: [],
       mTPreparing: [],
@@ -1616,6 +1705,142 @@ export default {
           displayStatus: this.translateStatus(status), // แปลงเป็นภาษาไทย
         }));
     },
+    formattedWeight: {
+      get() {
+        if (!this.mWeight) return ""; // ถ้าว่างให้คืนค่าว่าง
+
+        // แยกค่าตัวเลขกับทศนิยม
+        let parts = this.mWeight.split(".");
+        parts[0] = parseInt(parts[0]).toLocaleString("en-US"); // ใส่ comma เฉพาะส่วนหลักพัน
+        return parts.join("."); // รวมกลับเป็นค่าแสดงผล
+      },
+      set(value) {
+        this.mWeight = value.replace(/,/g, ""); // ลบ comma ออกแล้วเก็บค่า
+      },
+    },
+    formattedWeightPacking: {
+      get() {
+        if (!this.mWeightPacking) return "0"; // ถ้าค่าว่างให้เป็น "0"
+        let parts = this.mWeightPacking.split(".");
+        parts[0] = parseInt(parts[0] || "0").toLocaleString("en-US"); // แสดง comma เฉพาะตัวเลขหลักพัน
+        return parts.join(".");
+      },
+      set(value) {
+        let cleanedValue = value.replace(/,/g, ""); // ลบ comma ออก
+        if (cleanedValue === "" || cleanedValue === ".") {
+          this.mWeightPacking = "0"; // ป้องกัน NaN หรือค่า "." อย่างเดียว
+        } else {
+          this.mWeightPacking = cleanedValue;
+        }
+      },
+    },
+    formattedStdWeight: {
+      get() {
+        if (!this.mStdWeight) return "0";
+        let parts = this.mStdWeight.split(".");
+        parts[0] = parseInt(parts[0]).toLocaleString("en-US"); // ใส่ comma เฉพาะหลักพัน
+        return parts.join(".");
+      },
+      set(value) {
+        let cleanedValue = value.replace(/,/g, ""); // ลบ comma ออก
+        if (cleanedValue === "" || cleanedValue === ".") {
+          this.mStdWeight = "0"; // ป้องกัน NaN หรือค่า "." อย่างเดียว
+        } else {
+          this.mStdWeight = cleanedValue;
+        }
+      },
+    },
+    formattedStdTime: {
+      get() {
+        if (!this.mStdTime) return "0";
+        let parts = this.mStdTime.split(".");
+        parts[0] = parseInt(parts[0]).toLocaleString("en-US"); // ใส่ comma เฉพาะหลักพัน
+        return parts.join(".");
+      },
+      set(value) {
+        let cleanedValue = value.replace(/,/g, ""); // ลบ comma ออก
+        if (cleanedValue === "" || cleanedValue === ".") {
+          this.mStdTime = "0"; // ป้องกัน NaN หรือค่า "." อย่างเดียว
+        } else {
+          this.mStdTime = cleanedValue;
+        }
+      },
+    },
+    formattedBulkUsed: {
+      get() {
+        if (!this.mBulkUsed) return "0";
+        let parts = this.mBulkUsed.split(".");
+        parts[0] = parseInt(parts[0]).toLocaleString("en-US"); // ใส่ comma เฉพาะหลักพัน
+        return parts.join(".");
+      },
+      set(value) {
+        let cleanedValue = value.replace(/,/g, ""); // ลบ comma ออก
+        if (cleanedValue === "" || cleanedValue === ".") {
+          this.mBulkUsed = "0"; // ป้องกัน NaN หรือค่า "." อย่างเดียว
+        } else {
+          this.mBulkUsed = cleanedValue;
+        }
+      },
+    },
+    formattedBulkQuoted: {
+      get() {
+        if (!this.mBulkQuoted) return "0";
+        let parts = this.mBulkQuoted.split(".");
+        parts[0] = parseInt(parts[0]).toLocaleString("en-US"); // ใส่ comma เฉพาะหลักพัน
+        return parts.join(".");
+      },
+      set(value) {
+        let cleanedValue = value.replace(/,/g, ""); // ลบ comma ออก
+        if (cleanedValue === "" || cleanedValue === ".") {
+          this.mBulkQuoted = "0"; // ป้องกัน NaN หรือค่า "." อย่างเดียว
+        } else {
+          this.mBulkQuoted = cleanedValue;
+        }
+      },
+    },
+    formattedBulkActually: {
+      get() {
+        if (!this.mBulkActually) return "0";
+        let parts = this.mBulkActually.split(".");
+        parts[0] = parseInt(parts[0]).toLocaleString("en-US"); // ใส่ comma เฉพาะหลักพัน
+        return parts.join(".");
+      },
+      set(value) {
+        let cleanedValue = value.replace(/,/g, ""); // ลบ comma ออก
+        if (cleanedValue === "" || cleanedValue === ".") {
+          this.mBulkActually = "0"; // ป้องกัน NaN หรือค่า "." อย่างเดียว
+        } else {
+          this.mBulkActually = cleanedValue;
+        }
+      },
+    },
+    formattedProdPlanEA: {
+      get() {
+        if (!this.mProdPlanEA) return "";
+        return parseInt(this.mProdPlanEA).toLocaleString("en-US"); // ใส่ comma
+      },
+      set(value) {
+        this.mProdPlanEA = value.replace(/,/g, ""); // ลบ comma ออกแล้วเก็บค่า
+      },
+    },
+    formattedExpectedProdEA: {
+      get() {
+        if (!this.mExpectedProdEA) return "";
+        return parseInt(this.mExpectedProdEA).toLocaleString("en-US"); // ใส่ comma
+      },
+      set(value) {
+        this.mExpectedProdEA = value.replace(/,/g, ""); // ลบ comma ออกแล้วเก็บค่า
+      },
+    },
+    formattedProdPlanQtyEA: {
+      get() {
+        if (!this.mProdPlanQtyEA) return "";
+        return parseInt(this.mProdPlanQtyEA).toLocaleString("en-US"); // ใส่ comma
+      },
+      set(value) {
+        this.mProdPlanQtyEA = value.replace(/,/g, ""); // ลบ comma ออกแล้วเก็บค่า
+      },
+    },
   },
   watch: {
     mFilterStatus() {
@@ -1626,7 +1851,9 @@ export default {
     },
     selectedTabTime(val) {
       if (!val) return "Unknow";
-
+      this.mWeight = "";
+      this.CreateByName = "";
+      this.flagEdit = true;
       const [datePart, timePart] = val.split(" ");
       const [day, month, year] = datePart.split("/");
       const formattedGroupDate = `${year}${month}${day}`; // แปลงเป็น YYYYMMDD
@@ -1650,7 +1877,6 @@ export default {
           const matchedItem = filterRandomDetact.find(
             (lc) => lc.problemDetectID === item.problemDetectID
           );
-          console.log(matchedItem, "matchedItem");
           if (matchedItem) {
             this.CreateByName = matchedItem.createByName;
             this.flagEdit = matchedItem.createBy == this.user.empId;
@@ -1705,6 +1931,118 @@ export default {
     },
   },
   methods: {
+    updateProdPlanQtyEA(event) {
+      let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
+      if (/^\d*$/.test(value)) {
+        // ให้กรอกเฉพาะตัวเลข ไม่มีทศนิยม
+        this.mProdPlanQtyEA = value;
+      }
+    },
+    updateExpectedProdEA(event) {
+      let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
+      if (/^\d*$/.test(value)) {
+        // ให้กรอกเฉพาะตัวเลข ไม่มีทศนิยม
+        this.mExpectedProdEA = value;
+      }
+    },
+    updateProdPlanEA(event) {
+      let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
+      if (/^\d*$/.test(value)) {
+        // ให้กรอกเฉพาะตัวเลข ไม่มีทศนิยม
+        this.mProdPlanEA = value;
+      }
+    },
+    updateBulkActually(event) {
+      let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
+      if (value === ".") {
+        this.mBulkActually = "0."; // ป้องกัน "." อย่างเดียว
+        return;
+      }
+      if (/^\d*\.?\d*$/.test(value)) {
+        // ให้กรอกเฉพาะตัวเลขและทศนิยม
+        this.mBulkActually = value;
+      } else {
+        this.mBulkActually = "0";
+      }
+    },
+    updateBulkQuoted(event) {
+      let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
+      if (value === ".") {
+        this.mBulkQuoted = "0."; // ป้องกัน "." อย่างเดียว
+        return;
+      }
+      if (/^\d*\.?\d*$/.test(value)) {
+        // ให้กรอกเฉพาะตัวเลขและทศนิยม
+        this.mBulkQuoted = value;
+      } else {
+        this.mBulkQuoted = "0";
+      }
+    },
+    updateWeight(event) {
+      let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
+      if (value === ".") {
+        this.mWeight = "0."; // ป้องกัน "." อย่างเดียว
+        return;
+      }
+      if (/^\d*\.?\d*$/.test(value)) {
+        // เช็คให้สามารถพิมพ์ทศนิยมได้
+        this.mWeight = value;
+      } else {
+        this.mWeight = "0";
+      }
+    },
+    updateWeightPacking(event) {
+      let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
+      if (value === ".") {
+        this.mWeightPacking = "0."; // ป้องกัน "." อย่างเดียว
+        return;
+      }
+      if (/^\d*\.?\d*$/.test(value)) {
+        // ให้กรอกเฉพาะตัวเลขและทศนิยม
+        this.mWeightPacking = value;
+      } else {
+        this.mWeightPacking = "0"; // ถ้าค่าไม่ถูกต้องให้เป็น "0"
+      }
+    },
+    updateStdWeight(event) {
+      let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
+      if (value === ".") {
+        this.mStdWeight = "0."; // ป้องกัน "." อย่างเดียว
+        return;
+      }
+      if (/^\d*\.?\d*$/.test(value)) {
+        // ให้กรอกเฉพาะตัวเลขและทศนิยม
+        this.mStdWeight = value;
+      } else {
+        this.mStdWeight = "0"; // ถ้าค่าไม่ถูกต้องให้เป็น "0"
+      }
+    },
+    updateStdTime(event) {
+      let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
+      if (value === ".") {
+        this.mStdTime = "0."; // ป้องกัน "." อย่างเดียว
+        return;
+      }
+      if (/^\d*\.?\d*$/.test(value)) {
+        // ให้กรอกเฉพาะตัวเลขและทศนิยม
+        this.mStdTime = value;
+      } else {
+        this.mStdTime = "0"; // ถ้าค่าไม่ถูกต้องให้เป็น "0"
+      }
+    },
+    updateBulkUsed(event) {
+      let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
+      if (value === ".") {
+        this.mBulkUsed = "0."; // ป้องกัน "." อย่างเดียว
+        return;
+      }
+      if (/^\d*\.?\d*$/.test(value)) {
+        // ให้กรอกเฉพาะตัวเลขและทศนิยม
+        this.mBulkUsed = value;
+      } else {
+        this.mBulkUsed = "0"; // ถ้าค่าไม่ถูกต้องให้เป็น "0"
+      }
+    },
     filterListQaReq() {
       if (
         (!this.mFilterStatus || this.mFilterStatus.length === 0) &&
@@ -1832,6 +2170,10 @@ export default {
         this.listVerifyProduct = response.results.map((item, index) => ({
           ...item,
           index: index + 1, // ✅ เพิ่มฟิลด์ index (เริ่มที่ 1)
+          detectWeightFormatted: new Intl.NumberFormat("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(parseFloat(item.detectWeight)), // ✅ เติม .00 และคั่น comma
         }));
       } catch (e) {
         console.log(e);
@@ -2017,6 +2359,8 @@ export default {
           return this.showError("กรุณาเพิ่มเวลาให้มากกว่ารายการล่าสุดอย่างน้อย 45 นาที");
         }
       }
+      this.CreateByName = "";
+      this.flagEdit = true;
 
       // ถ้าผ่านเงื่อนไข ก็เพิ่มรายการใหม่ได้
       const newTab = {
@@ -2082,7 +2426,7 @@ export default {
         // เคลียร์ค่าของ list ก่อนโหลดข้อมูลใหม่
         this.listQaReq = [];
         this.rawListQaReq = [];
-        this.sDisabledDate = true
+        this.sDisabledDate = true;
         // ตั้งค่า request
         const init = {
           productionDateStart: this.sProductionDateStart,
@@ -2561,7 +2905,9 @@ export default {
       this.mExpectedProdEA = item.expectedProdEA.toString();
       this.mStdTime = item.stdTime.toString();
       this.mStdWeight = item.stdWeight.toString();
-      this.mBulkUsed = item.bulkUsed;
+      this.mBulkUsed = item.bulkUsed.toString();
+      this.mBulkQuoted = item.bulkQuoted.toString();
+      this.mBulkActually = item.bulkActually.toString();
       this.mScale = item.scale;
       this.mProductionDate = item.productionDate;
       this.mInspectionDate = item.checkIN;
@@ -2602,7 +2948,10 @@ export default {
       this.mExpectedProdEA = "";
       this.mStdTime = "";
       this.mStdWeight = "";
-      this.mBulkUsed = "";
+      this.mWeight = "";
+      this.mBulkUsed = 0;
+      this.mBulkQuoted = 0;
+      this.mBulkActually = 0;
       this.mScale = "";
       this.mTLineClearance = [];
       this.mTPreparing = [];
@@ -2659,6 +3008,12 @@ export default {
         if (!this.mBulkUsed && Number(this.mBulkUsed) == 0) {
           return this.showError("กรุณากรอกปริมาณ Bulk ที่ใช้");
         }
+        if (!this.mBulkQuoted && Number(this.mBulkQuoted) == 0) {
+          return this.showError("กรุณากรอกปริมาณ Bulk ยกมา");
+        }
+        if (!this.mBulkActually && Number(this.mBulkActually) == 0) {
+          return this.showError("กรุณากรอกปริมาณ Bulk ที่ใช้จริง");
+        }
         if (!this.mProdPlanEA && Number(this.mProdPlanEA) == 0) {
           return this.showError("กรุณากรอกแผนการผลิต (EA)");
         }
@@ -2707,7 +3062,9 @@ export default {
           expectedProdEA: Number(this.mExpectedProdEA),
           stdTime: Number(this.mStdTime),
           stdWeight: Number(this.mStdWeight),
-          bulkUsed: this.mBulkUsed,
+          bulkUsed: Number(this.mBulkUsed),
+          bulkQuoted: Number(this.mBulkQuoted),
+          bulkActually: Number(this.mBulkActually),
           scale: this.mScale,
           productionDate: this.mProductionDate,
           checkIN: this.mInspectionDate,

@@ -5,10 +5,32 @@ export default {
      */
     numbersOnly(event) {
       const charCode = event.which || event.keyCode;
-      if (
-        charCode < 48 || // Less than '0'
-        charCode > 57 // Greater than '9'
-      ) {
+    
+      // อนุญาตให้ใช้ Backspace (8), Tab (9), Enter (13), Delete (46), ลูกศรซ้ายขวา (37, 39)
+      if ([8, 9, 13, 37, 39, 46].includes(charCode)) {
+        return;
+      }
+    
+      // อนุญาตให้ใช้ตัวเลข 0-9 (48-57) และทศนิยม "."
+      if ((charCode < 48 || charCode > 57) && charCode !== 46) {
+        event.preventDefault();
+      }
+    
+      // ตรวจสอบว่า มีจุดทศนิยมเกิน 1 จุดหรือไม่
+      if (charCode === 46 && event.target.value.includes(".")) {
+        event.preventDefault();
+      }
+    },
+    numbersOnlyInteger(event) {
+      const charCode = event.which || event.keyCode;
+  
+      // อนุญาตให้ใช้ Backspace (8), Tab (9), Enter (13), Delete (46), ลูกศรซ้ายขวา (37, 39)
+      if ([8, 9, 13, 37, 39, 46].includes(charCode)) {
+        return;
+      }
+  
+      // อนุญาตเฉพาะตัวเลข 0-9 ห้ามพิมพ์ "."
+      if (charCode < 48 || charCode > 57) {
         event.preventDefault();
       }
     },
