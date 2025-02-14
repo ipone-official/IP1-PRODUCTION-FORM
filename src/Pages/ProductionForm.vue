@@ -2098,7 +2098,7 @@ export default {
       const statusMapping = {
         InProcess: "ระหว่างดำเนินการ",
         WaitConfirm: "ระหว่างตรวจสอบ",
-        WaitApprove: "ระหว่างอนุมัติ",
+        WaitApproved: "ระหว่างอนุมัติ",
         Completed: "เสร็จสิ้น",
       };
       return statusMapping[status] || "สถานะไม่ทราบ"; // กรณี status ไม่มีใน mapping
@@ -2106,7 +2106,7 @@ export default {
     translateFlagStatus(status) {
       const statusMapping = {
         WaitConfirm: "ส่งตรวจสอบ",
-        WaitApprove: "ส่งอนุมัติ",
+        WaitApproved: "ส่งอนุมัติ",
         Completed: "เสร็จสิ้น",
       };
       return statusMapping[status] || "สถานะไม่ทราบ"; // กรณี status ไม่มีใน mapping
@@ -2845,12 +2845,6 @@ export default {
       this.managerEdit = userGroups.includes("PDD.MANAGER") && itemStatus !== "Completed";
 
       this.adminEdit = userGroups.includes("PDD.ADMIN");
-
-      console.log(this.operatorEdit, "operatorEdit");
-      console.log(this.supervisorEdit, "supervisorEdit");
-      console.log(this.managerEdit, "managerEdit");
-      console.log(this.adminEdit, "adminEdit");
-      console.log(this.flagCreate, "flagCreate");
 
       await this.gTReasonDetail(this.mSelectedReqQa.formID);
       this.mLineprocess = {
