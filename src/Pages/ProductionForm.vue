@@ -135,12 +135,12 @@
     >
       <template v-slot:item.productionDate="{ item }">
         <div>
-          {{ item.productionDate ? formatDate(item.productionDate) : "-" }}
+          {{ item.productionDate ? formatDateProductionDate(item.productionDate) : "-" }}
         </div>
       </template>
       <template v-slot:item.checkIN="{ item }">
         <div>
-          {{ item.checkIN ? formatDate(item.checkIN) : "-" }}
+          {{ item.checkIN ? formatDateCheckin(item.checkIN) : "-" }}
         </div>
       </template>
       <template v-slot:item.status="{ item }">
@@ -214,45 +214,51 @@
               </v-col>
             </v-row>
             <v-row justify="end" align="center" v-show="canEdit(mSelectedReqQa)">
-              <v-col cols="12" md="2">
+              <v-col
+                cols="12"
+                md="2"
+                v-if="
+                  (managerEdit && mSelectedReqQa.status == 'WaitApproved') || adminEdit
+                "
+              >
                 <v-btn
                   color="success"
                   large
                   elevation="6"
                   class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
                   @click="submitForm('Completed')"
-                  v-if="
-                    (managerEdit && mSelectedReqQa.status == 'WaitApproved') || adminEdit
-                  "
                 >
                   <v-icon left>mdi-check-circle-outline</v-icon> อนุมัติ
                 </v-btn>
               </v-col>
-              <v-col cols="12" md="2">
+              <v-col
+                cols="12"
+                md="2"
+                v-if="
+                  (supervisorEdit && mSelectedReqQa.status == 'WaitConfirm') || adminEdit
+                "
+              >
                 <v-btn
                   color="success"
                   large
                   elevation="6"
                   class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
                   @click="submitForm('WaitApproved')"
-                  v-if="
-                    (supervisorEdit && mSelectedReqQa.status == 'WaitConfirm') ||
-                    adminEdit
-                  "
                 >
                   <v-icon left>mdi-check-circle-outline</v-icon> ส่งอนุมัติ
                 </v-btn>
               </v-col>
-              <v-col cols="12" md="2">
+              <v-col
+                cols="12"
+                md="2"
+                v-if="(operatorEdit && mSelectedReqQa.status == 'InProcess') || adminEdit"
+              >
                 <v-btn
                   color="success"
                   large
                   elevation="6"
                   class="rounded-xl text-white font-weight-bold px-8 py-2 transition"
                   @click="submitForm('WaitConfirm')"
-                  v-if="
-                    (operatorEdit && mSelectedReqQa.status == 'InProcess') || adminEdit
-                  "
                 >
                   <v-icon left>mdi-check-circle-outline</v-icon> ส่งตรวจสอบ
                 </v-btn>
@@ -1355,12 +1361,7 @@
                         <div class="info-item">
                           <span class="info-label">ปริมาณ Bulk ใช้ทั้งหมด</span>
                           <span class="info-value"
-                            >{{
-                              rProductionResult.bulkUsed
-                                ? formatNumber(rProductionResult.bulkUsed,2)
-                                : "-"
-                            }}
-                            KG</span
+                            >{{ formatNumber(rProductionResult.bulkUsed, 2) }} KG</span
                           >
                         </div>
                       </v-col>
@@ -1368,12 +1369,7 @@
                         <div class="info-item">
                           <span class="info-label">Bulk ยกมา</span>
                           <span class="info-value"
-                            >{{
-                              rProductionResult.bulkQuoted
-                                ? formatNumber(rProductionResult.bulkQuoted,2)
-                                : "-"
-                            }}
-                            KG</span
+                            >{{ formatNumber(rProductionResult.bulkQuoted, 2) }} KG</span
                           >
                         </div>
                       </v-col>
@@ -1382,9 +1378,7 @@
                           <span class="info-label">Bulk ที่ใช้จริง</span>
                           <span class="info-value"
                             >{{
-                              rProductionResult.bulkActually
-                                ? formatNumber(rProductionResult.bulkActually,2)
-                                : "-"
+                              formatNumber(rProductionResult.bulkActually, 2)
                             }}
                             KG</span
                           >
@@ -1393,13 +1387,20 @@
                       <v-col cols="12" md="2">
                         <div class="info-item">
                           <span class="info-label">Bulk คงเหลือ</span>
-                          <span class="info-value">{{ formatNumber(rProductionResult.bulkRemaining,2)  }} KG</span>
+                          <span class="info-value"
+                            >{{
+                              formatNumber(rProductionResult.bulkRemaining, 2)
+                            }}
+                            KG</span
+                          >
                         </div>
                       </v-col>
                       <v-col cols="12" md="3">
                         <div class="info-item">
                           <span class="info-label">ปริมาณ Bulk สูญเสีย</span>
-                          <span class="info-value">{{ formatNumber(rProductionResult.bulkLoss,2)  }} KG</span>
+                          <span class="info-value"
+                            >{{ formatNumber(rProductionResult.bulkLoss, 2) }} KG</span
+                          >
                         </div>
                       </v-col>
                     </v-row>
@@ -1410,9 +1411,7 @@
                           <span class="info-label">จำนวนผลิตได้จริง</span>
                           <span class="info-value"
                             >{{
-                              rProductionResult.prodPlanQtyEA
-                                ? formatNumber(rProductionResult.prodPlanQtyEA,0)
-                                : "-"
+                              formatNumber(rProductionResult.prodPlanQtyEA, 0)
                             }}
                             EA</span
                           >
@@ -1422,32 +1421,34 @@
                         <div class="info-item">
                           <span class="info-label">จำนวน DZ</span>
                           <span class="info-value"
-                            >{{
-                              rProductionResult.prodPlanQtyActually
-                                ? formatNumber(rProductionResult.prodPlanQtyActually, 0)
-                               
-                                : "-"
-                            }}
+                            >{{ formatNumber(rProductionResult.prodPlanQtyActually, 0) }}
                           </span>
                         </div>
                       </v-col>
                       <v-col cols="12" md="2">
                         <div class="info-item">
                           <span class="info-label">% Yield</span>
-                          <span class="info-value">{{ formatNumber(rProductionResult.percentYield, 2) }} %</span>
+                          <span class="info-value"
+                            >{{ formatNumber(rProductionResult.percentYield, 2) }} %</span
+                          >
                         </div>
                       </v-col>
                       <v-col cols="12" md="2">
                         <div class="info-item">
                           <span class="info-label">% Loss</span>
-                          <span class="info-value">{{ formatNumber(rProductionResult.percentLoss, 2) }} %</span>
+                          <span class="info-value"
+                            >{{ formatNumber(rProductionResult.percentLoss, 2) }} %</span
+                          >
                         </div>
                       </v-col>
                       <v-col cols="12" md="3">
                         <div class="info-item">
                           <span class="info-label">น้ำหนัก AVG</span>
                           <span class="info-value"
-                            >{{  formatNumber(rProductionResult.avgDetectWeight, 2) }} G</span
+                            >{{
+                              formatNumber(rProductionResult.avgDetectWeight, 2)
+                            }}
+                            G</span
                           >
                         </div>
                       </v-col>
@@ -3322,7 +3323,22 @@ export default {
         }
       }
     },
-    formatDate(dateStr) {
+    formatDateCheckin(dateStr) {
+      // ตรวจสอบว่าข้อมูลมีความยาวที่ถูกต้อง
+      if (dateStr.length !== 14) {
+        throw new Error("Invalid date format");
+      }
+
+      // แยกส่วนของวันที่
+      const year = dateStr.slice(0, 4); // ปี
+      const month = dateStr.slice(4, 6); // เดือน
+      const day = dateStr.slice(6, 8); // วัน
+      const hhmm = dateStr.slice(8);
+
+      // จัดรูปแบบวันที่
+      return `${day}/${month}/${year} ${hhmm}`;
+    },
+    formatDateProductionDate(dateStr) {
       // ตรวจสอบว่าข้อมูลมีความยาวที่ถูกต้อง
       if (dateStr.length !== 8) {
         throw new Error("Invalid date format");
