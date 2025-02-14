@@ -152,7 +152,7 @@
       <template v-slot:item.actions="{ item }">
         <div class="action-buttons">
           <!-- Edit Tooltip -->
-          <v-tooltip text="Edit" location="bottom" color="blue" text-color="white">
+          <v-tooltip text="ดูรายการ" location="bottom" color="blue" text-color="white">
             <template v-slot:activator="{ props }">
               <v-btn icon variant="text" v-bind="props" @click="editItemTFormList(item)">
                 <v-icon color="blue">mdi-washing-machine</v-icon>
@@ -162,7 +162,7 @@
 
           <!-- Delete Tooltip -->
           <v-tooltip
-            text="Delete"
+            text="ลบรายการ"
             location="bottom"
             color="red"
             text-color="white"
