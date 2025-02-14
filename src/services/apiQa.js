@@ -368,6 +368,25 @@ export const gVendor = async () => {
     }
   };
 
+  export const gTProductionResult = async (FormID) => {
+    try {
+      const accessToken = localStorage.getItem("accessTokenQa");
+      // ตรวจสอบว่า accessToken มีค่าหรือไม่
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
+      const response = await api.get(
+        `QA/v1/gTProductionResult?FormID=${FormID}`,
+      );
+  
+      return response.data;
+    } catch (error) {
+      console.error('Error in gTProductionResult:', error);
+      throw error;
+    }
+  };
+
   export const pProblemRandomDetect = async (data) => {
     try {
       // ตรวจสอบว่า data มีค่าที่จำเป็นหรือไม่

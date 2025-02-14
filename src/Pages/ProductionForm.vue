@@ -1300,32 +1300,106 @@
                     <v-row dense>
                       <v-col cols="12" md="3">
                         <div class="info-item">
+                          <span class="info-label">ผลิตภัณฑ์</span>
+                          <span class="info-value">{{
+                            rProductionResult.materialCode
+                              ? rProductionResult.materialCode
+                              : "-"
+                          }}</span>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="2">
+                        <div class="info-item">
+                          <span class="info-label">รายละเอียดผลิตภัณฑ์</span>
+                          <span class="info-value">{{
+                            rProductionResult.materialDesc
+                              ? rProductionResult.materialDesc
+                              : "-"
+                          }}</span>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="2">
+                        <div class="info-item">
+                          <span class="info-label">สีผลิตภัณฑ์</span>
+                          <span class="info-value">{{
+                            rProductionResult.materialColor
+                              ? rProductionResult.materialColor
+                              : "-"
+                          }}</span>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="2">
+                        <div class="info-item">
+                          <span class="info-label">ขนาดผลิตภัณฑ์</span>
+                          <span class="info-value">{{
+                            rProductionResult.materialSize
+                              ? formatNumber(rProductionResult.materialSize, 0)
+                              : "-"
+                          }}</span>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="3">
+                        <div class="info-item">
+                          <span class="info-label">หมวดหมู่ผลิตภัณฑ์</span>
+                          <span class="info-value">{{
+                            rProductionResult.materialCategory
+                              ? rProductionResult.materialCategory
+                              : "-"
+                          }}</span>
+                        </div>
+                      </v-col>
+                    </v-row>
+
+                    <v-row dense>
+                      <v-col cols="12" md="3">
+                        <div class="info-item">
                           <span class="info-label">ปริมาณ Bulk ใช้ทั้งหมด</span>
-                          <span class="info-value">6500 KG</span>
+                          <span class="info-value"
+                            >{{
+                              rProductionResult.bulkUsed
+                                ? formatNumber(rProductionResult.bulkUsed,2)
+                                : "-"
+                            }}
+                            KG</span
+                          >
                         </div>
                       </v-col>
                       <v-col cols="12" md="2">
                         <div class="info-item">
                           <span class="info-label">Bulk ยกมา</span>
-                          <span class="info-value">6500 KG</span>
+                          <span class="info-value"
+                            >{{
+                              rProductionResult.bulkQuoted
+                                ? formatNumber(rProductionResult.bulkQuoted,2)
+                                : "-"
+                            }}
+                            KG</span
+                          >
                         </div>
                       </v-col>
                       <v-col cols="12" md="2">
                         <div class="info-item">
                           <span class="info-label">Bulk ที่ใช้จริง</span>
-                          <span class="info-value">5674 KG</span>
+                          <span class="info-value"
+                            >{{
+                              rProductionResult.bulkActually
+                                ? formatNumber(rProductionResult.bulkActually,2)
+                                : "-"
+                            }}
+                            KG</span
+                          >
                         </div>
                       </v-col>
                       <v-col cols="12" md="2">
                         <div class="info-item">
                           <span class="info-label">Bulk คงเหลือ</span>
-                          <span class="info-value">826 KG</span>
+                          <span class="info-value">{{ formatNumber(rProductionResult.bulkRemaining,2)  }} KG</span>
                         </div>
                       </v-col>
                       <v-col cols="12" md="3">
                         <div class="info-item">
                           <span class="info-label">ปริมาณ Bulk สูญเสีย</span>
-                          <span class="info-value">5674 KG</span>
+                          <span class="info-value">{{ formatNumber(rProductionResult.bulkLoss,2)  }} KG</span>
                         </div>
                       </v-col>
                     </v-row>
@@ -1334,31 +1408,47 @@
                       <v-col cols="12" md="3">
                         <div class="info-item">
                           <span class="info-label">จำนวนผลิตได้จริง</span>
-                          <span class="info-value">79540 EA</span>
+                          <span class="info-value"
+                            >{{
+                              rProductionResult.prodPlanQtyEA
+                                ? formatNumber(rProductionResult.prodPlanQtyEA,0)
+                                : "-"
+                            }}
+                            EA</span
+                          >
                         </div>
                       </v-col>
                       <v-col cols="12" md="2">
                         <div class="info-item">
                           <span class="info-label">จำนวน DZ</span>
-                          <span class="info-value">6628</span>
+                          <span class="info-value"
+                            >{{
+                              rProductionResult.prodPlanQtyActually
+                                ? formatNumber(rProductionResult.prodPlanQtyActually, 0)
+                               
+                                : "-"
+                            }}
+                          </span>
                         </div>
                       </v-col>
                       <v-col cols="12" md="2">
                         <div class="info-item">
                           <span class="info-label">% Yield</span>
-                          <span class="info-value">56.75 %</span>
+                          <span class="info-value">{{ formatNumber(rProductionResult.percentYield, 2) }} %</span>
                         </div>
                       </v-col>
                       <v-col cols="12" md="2">
                         <div class="info-item">
                           <span class="info-label">% Loss</span>
-                          <span class="info-value">26.51 %</span>
+                          <span class="info-value">{{ formatNumber(rProductionResult.percentLoss, 2) }} %</span>
                         </div>
                       </v-col>
                       <v-col cols="12" md="3">
                         <div class="info-item">
                           <span class="info-label">น้ำหนัก AVG</span>
-                          <span class="info-value">745.35 G</span>
+                          <span class="info-value"
+                            >{{  formatNumber(rProductionResult.avgDetectWeight, 2) }} G</span
+                          >
                         </div>
                       </v-col>
                       <v-col cols="12" md="12">
@@ -1476,6 +1566,7 @@ import {
   pTProblemRandomDetectWeight,
   dTProblemRandomDetectWeight,
   dFormList,
+  gTProductionResult,
 } from "@/services/apiQa.js";
 import Swal from "sweetalert2";
 import { isEmpty } from "lodash";
@@ -1495,6 +1586,7 @@ export default {
   },
   data() {
     return {
+      rProductionResult: [],
       keyFilter,
       flagEdit: false,
       sDisabledDate: false,
@@ -1931,6 +2023,21 @@ export default {
     },
   },
   methods: {
+    formatNumber(value, decimalPlaces = 0) {
+      if (value === null || value === undefined || value === "") {
+        return decimalPlaces > 0 ? "0.00" : "0";
+      }
+
+      // แปลงค่าเป็นตัวเลข
+      let num = parseFloat(value);
+      if (isNaN(num)) return decimalPlaces > 0 ? "0.00" : "0";
+
+      // ใช้ Intl.NumberFormat เพื่อเพิ่ม comma และทศนิยม
+      return num.toLocaleString("en-US", {
+        minimumFractionDigits: decimalPlaces,
+        maximumFractionDigits: decimalPlaces,
+      });
+    },
     updateProdPlanQtyEA(event) {
       let value = event.target.value.replace(/,/g, ""); // ลบ comma ออกก่อน
       if (/^\d*$/.test(value)) {
@@ -2620,6 +2727,18 @@ export default {
         this.isLoading = false;
       }
     },
+    async gTProductionResult(val) {
+      this.isLoading = true;
+      try {
+        const response = await gTProductionResult(val);
+        return (this.rProductionResult = response.results[0]);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        // ปิดการแสดงผล Loading ในทุกกรณี
+        this.isLoading = false;
+      }
+    },
     async gTReasonDetail(val) {
       this.isLoading = true;
       this.listDProduct = [];
@@ -2854,6 +2973,7 @@ export default {
       await this.gTLineClearance(this.mSelectedReqQa.formID);
       await this.gTPreparing(this.mSelectedReqQa.formID);
       await this.gTProblemRandomDetect(this.mSelectedReqQa.formID);
+      await this.gTProductionResult(this.mSelectedReqQa.formID);
       if (this.mTLineClearance.length != 0) {
         this.mcMaterial = {
           materialCode: this.mTLineClearance.material,
@@ -2962,6 +3082,7 @@ export default {
       this.viewOnly = false;
       this.flagCreate = true;
       this.flagEdit = false;
+      this.rProductionResult = [];
       if (this.sDisabledDate) {
         await this.gTFormList();
       }
