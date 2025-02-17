@@ -206,8 +206,8 @@
                     ผู้สร้างเอกสาร :
                     {{
                       mSelectedReqQa.length != 0
-                        ? mSelectedReqQa.samAccount
-                        : user.samAccount
+                        ? `${mSelectedReqQa.samAccount} (${mSelectedReqQa.userID})`  
+                        : `${user.samAccount} (${user.empId})` 
                     }}
                   </v-card-text>
                 </v-card>
@@ -997,7 +997,7 @@
                                 <v-icon class="header-icon" color="primary"
                                   >mdi-clipboard-check-outline</v-icon
                                 >
-                                <h3 class="header-title">รายการตรวจสอบบรรจุภัณฑ์</h3>
+                                <h3 class="header-title">รายการตรวจสอบผลิตภัณฑ์</h3>
                               </div>
                               <v-row
                                 class="align-center justify-space-between"
@@ -1112,7 +1112,7 @@
                                       {{
                                         CreateByName.length != 0
                                           ? CreateByName
-                                          : user.samAccount
+                                          : `${user.samAccount} (${user.empId})`
                                       }}
                                     </v-card-text>
                                   </v-card>
@@ -2017,7 +2017,7 @@ export default {
             (lc) => lc.problemDetectID === item.problemDetectID
           );
           if (matchedItem) {
-            this.CreateByName = matchedItem.createByName;
+            this.CreateByName = `${matchedItem.createByName} (${matchedItem.createBy})`;
             this.flagEdit = matchedItem.createBy == this.user.empId;
           }
           return {
@@ -2509,8 +2509,8 @@ export default {
         const diffMinutes = (newTime.getTime() - latestTime.getTime()) / (1000 * 60);
 
         // เช็คว่าห่างกันมากกว่า 15 นาทีหรือไม่
-        if (diffMinutes < 45) {
-          return this.showError("กรุณาเพิ่มเวลาให้มากกว่ารายการล่าสุดอย่างน้อย 45 นาที");
+        if (diffMinutes < 30) {
+          return this.showError("กรุณาเพิ่มเวลาให้มากกว่ารายการล่าสุดอย่างน้อย 30 นาที");
         }
       }
       this.CreateByName = "";
