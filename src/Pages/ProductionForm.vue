@@ -234,8 +234,7 @@
                 md="2"
                 v-if="
                   (supervisorEdit &&
-                    !['WaitApproved', 'Completed'].includes(mSelectedReqQa.status)) ||
-                  adminEdit
+                    !['WaitApproved', 'Completed'].includes(mSelectedReqQa.status)) || adminEdit
                 "
               >
                 <v-btn

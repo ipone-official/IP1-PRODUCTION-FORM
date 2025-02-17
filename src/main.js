@@ -5,9 +5,7 @@ import App from './App.vue';
 import router from './router';
 import { setupComponents } from './config/setup-components';
 import vuetify from './plugins/vuetify'; // Import Vuetify instance
-import '@mdi/font/css/materialdesignicons.css';
 import { createPinia } from 'pinia';
-  
 
 const app = createApp(App);
 

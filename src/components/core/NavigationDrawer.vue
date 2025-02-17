@@ -51,14 +51,7 @@
     <div class="footer">
       <v-divider></v-divider>
       <div class="menu-container">
-        <v-list-item
-          style="background-color: #007fc4"
-          class="menu-item"
-          dense
-          @click="navigateTo('/UserManual')"
-          rounded="shaped"
-          value="UserManual"
-        >
+        <v-list-item style="background-color: #007fc4" class="menu-item" dense @click="showPdfPreview = true" rounded="shaped" value="UserManual">
           <v-list-item-title class="menu-title">
             <v-icon>mdi-book-open-variant-outline</v-icon>
             User Manual
@@ -66,11 +59,16 @@
         </v-list-item>
       </div>
     </div>
+    <PdfPreview v-model="showPdfPreview" />
   </v-navigation-drawer>
 </template>
 
 <script>
+import { ref } from "vue";
+import PdfPreview from "@/components/PdfPreview.vue";
+
 export default {
+  components: { PdfPreview },
   name: "NavigationDrawer",
   props: {
     isOpen: {
@@ -78,8 +76,10 @@ export default {
       default: false,
     },
   },
-  data() {
-    return {};
+  setup() {
+    const showPdfPreview = ref(false);
+
+    return { showPdfPreview };
   },
   methods: {
     navigateTo(route) {

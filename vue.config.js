@@ -1,4 +1,3 @@
-// vue.config.js
 const { defineConfig } = require('@vue/cli-service');
 const path = require('path');
 
@@ -15,8 +14,8 @@ module.exports = defineConfig({
         };
       });
 
-    // ตั้งค่า alias สำหรับ '@'
     config.resolve.alias.set('@', path.resolve(__dirname, 'src'));
   },
+
   transpileDependencies: true,
 });
