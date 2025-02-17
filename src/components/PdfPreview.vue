@@ -13,17 +13,21 @@
       </v-toolbar>
 
       <div class="pdf-container">
-        <canvas ref="pdfCanvas"></canvas>
+        <div v-if="error" class="error-message">⚠️ ไม่สามารถโหลดไฟล์ PDF ได้</div>
+        <div v-else v-for="(canvas, index) in pdfCanvases" :key="index">
+          <canvas :ref="(el) => (pdfCanvases[index] = el)"></canvas>
+        </div>
       </div>
     </v-container>
   </v-dialog>
 </template>
+
 <script>
 import { ref, onMounted, watch } from "vue";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import { saveAs } from "file-saver";
 
-// ✅ ตั้งค่า Web Worker ให้ใช้ CDN
+// ✅ ใช้ CDN Worker
 GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 
@@ -34,18 +38,21 @@ export default {
   emits: ["update:modelValue"],
   setup(props, { emit }) {
     const dialog = ref(props.modelValue);
-    const pdfCanvas = ref(null);
     const error = ref(false);
+    const pdfCanvases = ref([]); // เก็บ <canvas> แต่ละหน้า
+    const numPages = ref(0);
+    const scale = ref(2.0); // ✅ ปรับค่า scale ให้ใหญ่ขึ้น (ค่าเดิมคือ 1.5)
 
-    const pdfSrc = ref( "https://portal.ip-one.com/Web-Production-Form/UserManual/ProductionForm.pdf");
-
+    const pdfSrc = ref(
+      "https://portal.ip-one.com/Web-Production-Form/UserManual/ProductionForm.pdf"
+    );
 
     const close = () => {
       emit("update:modelValue", false);
     };
 
     const downloadPDF = () => {
-      saveAs(pdfSrc.value, "UserManual ProductionForm.pdf");
+      saveAs(pdfSrc.value, "UserManual_ProductionForm.pdf");
     };
 
     const loadPdf = async () => {
@@ -53,17 +60,25 @@ export default {
       try {
         const loadingTask = getDocument(pdfSrc.value);
         const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1);
+        numPages.value = pdf.numPages;
 
-        const canvas = pdfCanvas.value;
-        const context = canvas.getContext("2d");
-        const viewport = page.getViewport({ scale: 1.5 });
+        for (let i = 1; i <= numPages.value; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: scale.value }); // ✅ ใช้ scale ที่ใหญ่ขึ้น
 
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+          // หา canvas ตาม index ที่ถูกต้อง
+          if (pdfCanvases.value[i - 1]) {
+            const canvas = pdfCanvases.value[i - 1];
+            const context = canvas.getContext("2d");
 
-        const renderContext = { canvasContext: context, viewport: viewport };
-        await page.render(renderContext).promise;
+            // ✅ ปรับขนาด canvas ตาม scale
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            const renderContext = { canvasContext: context, viewport: viewport };
+            await page.render(renderContext).promise;
+          }
+        }
       } catch (err) {
         console.error("🚨 PDF Load Error:", err);
         error.value = true;
@@ -86,7 +101,7 @@ export default {
       }
     );
 
-    return { dialog, pdfCanvas, close, downloadPDF, error };
+    return { dialog, pdfCanvases, close, downloadPDF, error };
   },
 };
 </script>
@@ -94,12 +109,17 @@ export default {
 <style scoped>
 .pdf-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  height: calc(100vh - 56px);
-  overflow-y: auto;
+  padding: 10px;
 }
 canvas {
   border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+.error-message {
+  color: red;
+  text-align: center;
+  font-size: 18px;
 }
 </style>
