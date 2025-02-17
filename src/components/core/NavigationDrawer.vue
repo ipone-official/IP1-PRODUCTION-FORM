@@ -10,7 +10,7 @@
     <v-list-item class="drawer-header">
       <div class="image-container">
         <img
-           src="@/assets/images/logo qa.png"
+          src="@/assets/images/logo qa.png"
           alt="User Image"
           class="styled-image animated-image"
         />
@@ -22,6 +22,18 @@
 
     <!-- Navigation Links -->
     <v-list density="compact" nav>
+      <v-list-item
+        class="menu-item"
+        @click="navigateTo('/Report')"
+        dense
+        rounded="shaped"
+        value="Report"
+      >
+        <v-list-item-title class="menu-title">
+          <v-icon>mdi-chart-bar-stacked</v-icon>
+          Report
+        </v-list-item-title>
+      </v-list-item>
       <!-- ProductionForm -->
       <v-list-item
         class="menu-item"
@@ -31,11 +43,29 @@
         value="ProductionForm"
       >
         <v-list-item-title class="menu-title">
-          <v-icon>mdi-document</v-icon>
+          <v-icon>mdi-file-document-outline</v-icon>
           Production Form
         </v-list-item-title>
       </v-list-item>
     </v-list>
+    <div class="footer">
+      <v-divider></v-divider>
+      <div class="menu-container">
+        <v-list-item
+          style="background-color: #007fc4"
+          class="menu-item"
+          dense
+          @click="navigateTo('/UserManual')"
+          rounded="shaped"
+          value="UserManual"
+        >
+          <v-list-item-title class="menu-title">
+            <v-icon>mdi-book-open-variant-outline</v-icon>
+            User Manual
+          </v-list-item-title>
+        </v-list-item>
+      </div>
+    </div>
   </v-navigation-drawer>
 </template>
 
@@ -176,5 +206,11 @@ export default {
   50% {
     transform: translateY(-5px); /* เลื่อนขึ้น */
   }
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 80%;
 }
 </style>
