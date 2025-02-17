@@ -37,7 +37,7 @@ export default {
     const pdfCanvas = ref(null);
     const error = ref(false);
 
-    const pdfSrc = ref( "https://portal.ip-one.com/Web-Production-Form/UserManual/ProductionFrom.pdf");
+    const pdfSrc = ref( "https://portal.ip-one.com/Web-Production-Form/UserManual/ProductionForm.pdf");
 
 
     const close = () => {
@@ -45,7 +45,7 @@ export default {
     };
 
     const downloadPDF = () => {
-      saveAs(pdfSrc.value, "UserManual ProductionFrom.pdf");
+      saveAs(pdfSrc.value, "UserManual ProductionForm.pdf");
     };
 
     const loadPdf = async () => {

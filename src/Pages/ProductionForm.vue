@@ -206,8 +206,8 @@
                     ผู้สร้างเอกสาร :
                     {{
                       mSelectedReqQa.length != 0
-                        ? `${mSelectedReqQa.samAccount} (${mSelectedReqQa.userID})`  
-                        : `${user.samAccount} (${user.empId})` 
+                        ? `${mSelectedReqQa.samAccount} (${mSelectedReqQa.userID})`
+                        : `${user.samAccount} (${user.empId})`
                     }}
                   </v-card-text>
                 </v-card>
@@ -234,7 +234,8 @@
                 md="2"
                 v-if="
                   (supervisorEdit &&
-                    !['WaitApproved', 'Completed'].includes(mSelectedReqQa.status)) || adminEdit
+                    !['WaitApproved', 'Completed'].includes(mSelectedReqQa.status)) ||
+                  adminEdit
                 "
               >
                 <v-btn
@@ -997,6 +998,52 @@
                                   >mdi-clipboard-check-outline</v-icon
                                 >
                                 <h3 class="header-title">รายการตรวจสอบผลิตภัณฑ์</h3>
+                                <div
+                                  class="d-flex justify-end pa-2"
+                                  style="color: #3498db"
+                                >
+                                  <v-icon color="red" @click="dialogNotification = true"
+                                    >mdi-bell-ring</v-icon
+                                  >
+                                </div>
+                                <!-- Dialog สำหรับแสดงรูปภาพ -->
+                                <v-dialog
+                                  v-model="dialogNotification"
+                                  class="dialog-width-noti"
+                                >
+                                  <v-card
+                                    class="elevation-10"
+                                    style="border-radius: 16px; overflow: hidden"
+                                  >
+                                    <!-- สไลด์แสดงรูปภาพ -->
+                                    <v-carousel hide-delimiters cycle :interval="5000">
+                                      <v-carousel-item
+                                        v-for="(image, index) in imagesNotification"
+                                        :key="index"
+                                      >
+                                        <div>
+                                          <img
+                                            :src="image"
+                                            alt="Slide Image"
+                                            class="carousel-image"
+                                          />
+                                        </div>
+                                      </v-carousel-item>
+                                    </v-carousel>
+
+                                    <!-- ปุ่มปิด -->
+                                    <v-card-actions class="d-flex justify-end pa-2">
+                                      <v-btn
+                                        color="red"
+                                        class="white--text"
+                                        rounded
+                                        @click="dialogNotification = false"
+                                      >
+                                        <v-icon left>mdi-close</v-icon> Close
+                                      </v-btn>
+                                    </v-card-actions>
+                                  </v-card>
+                                </v-dialog>
                               </div>
                               <v-row
                                 class="align-center justify-space-between"
@@ -1802,6 +1849,8 @@ export default {
       mFilterStatus: null,
       mFilterLineProcess: null,
       mRemarkClearance: "",
+      dialogNotification: false,
+      imagesNotification: [require("@/assets/images/I.P. Portal 2025.png")],
     };
   },
   created() {
@@ -3524,6 +3573,29 @@ export default {
   .input-field {
     margin-bottom: -1.3rem; /* สำหรับระยะห่างแนวตั้งในจอเล็ก */
     color: #007fc4 !important;
+  }
+}
+
+.dialog-width-noti {
+  max-width: 50%; /* กำหนดความกว้างของ dialog */
+}
+
+.carousel-image {
+  width: 100%; /* รูปภาพเต็มความกว้างของ container */
+  height: 100%; /* รูปภาพเต็มความสูงของ container */
+  object-fit: cover; /* ปรับให้รูปภาพเติมพื้นที่ container */
+  border-radius: 8px; /* มุมโค้งของรูปภาพ */
+}
+
+@media screen and (max-width: 600px) {
+  .dialog-width-noti {
+    max-width: 100%; /* ลดความกว้าง dialog สำหรับหน้าจอมือถือ */
+  }
+
+  .carousel-image {
+    max-width: 100%; /* จำกัดความกว้าง */
+    max-height: 100%; /* จำกัดความสูง */
+    object-fit: contain; /* รักษาสัดส่วนของภาพ */
   }
 }
 
