@@ -1220,7 +1220,10 @@
                                         class="input-field"
                                         type="text"
                                         @input="updateWeight"
-                                        :readonly="!operatorEdit || !flagEdit"
+                                        :readonly="(!operatorEdit || !flagEdit) &&
+                                              !supervisorEdit &&
+                                              !managerEdit &&
+                                              !adminEdit"
                                       >
                                         <template v-slot:label>
                                           <span style="color: red">*</span>น้ำหนัก
@@ -1278,7 +1281,10 @@
                                                 variant="text"
                                                 v-bind="props"
                                                 @click="deleteItemWeight(item)"
-                                                :readonly="!operatorEdit || !flagEdit"
+                                                :readonly="(!operatorEdit || !flagEdit) &&
+                                              !supervisorEdit &&
+                                              !managerEdit &&
+                                              !adminEdit"
                                               >
                                                 <v-icon color="red">mdi-delete</v-icon>
                                               </v-btn>
