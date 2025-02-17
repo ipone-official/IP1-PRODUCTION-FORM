@@ -11,7 +11,7 @@ const api = axios.create({
 });
 
 export function isTokenNearExpiration() {
-  const token = localStorage.getItem('accessTokenQa');
+  const token = localStorage.getItem('accessTokenProductionForm');
   if (!token) return true; // ไม่มี Token ถือว่าใกล้หมดอายุ
   const { exp } = JSON.parse(atob(token.split('.')[1])); // Decode JWT Payload
   const now = Math.floor(Date.now() / 1000); // เวลาปัจจุบันในหน่วยวินาที
@@ -36,7 +36,7 @@ export const RenewToken = async (refreshToken) => {
     const response = await api.post('Ads/v1/RenewToken', 
       refreshToken,
     );
-    localStorage.setItem("accessTokenQa", response.data.accessToken);
+    localStorage.setItem("accessTokenProductionForm", response.data.accessToken);
     return response.data;
   } catch (error) {
     console.error('Error fetching user:', error);
@@ -85,7 +85,7 @@ export const UpdateMobile = async (username, mobile) => {
 
 export const uploadImage = async (file, empId) => {
   try {
-    const accessToken = localStorage.getItem("accessTokenQa");
+    const accessToken = localStorage.getItem("accessTokenProductionForm");
     if (!accessToken) {
       throw new Error("Access token not found in localStorage");
     }
@@ -135,7 +135,7 @@ export const VerifyOtp = async (token, pin) => {
 
 export const ValidateJwtToken = async () => {
   try {
-    const accessToken = localStorage.getItem("accessTokenQa");
+    const accessToken = localStorage.getItem("accessTokenProductionForm");
     if (!accessToken) {
       throw new Error("Access token not found in localStorage");
     }

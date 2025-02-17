@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // สร้าง instance ของ axios เพื่อกำหนดค่า base URL และ config เบื้องต้น
 const api = axios.create({
-  baseURL: 'https://portal.ip-one.com/ApiQA/', // เปลี่ยน URL เป็น API ที่คุณต้องการ
+  baseURL: 'https://portal.ip-one.com/ApiProductionForm/', // เปลี่ยน URL เป็น API ที่คุณต้องการ
   timeout: 0, // ตั้งค่า timeout สำหรับการเชื่อมต่อ (หน่วยเป็นมิลลิวินาที)
   headers: {
     'Content-Type': 'application/json',
@@ -12,14 +12,14 @@ const api = axios.create({
 
 export const gLineProcess = async () => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gLineProcess`,
+        `ProductionForm/v1/gLineProcess`,
       );
   
       return response.data;
@@ -32,14 +32,14 @@ export const gLineProcess = async () => {
   
   export const gLineProcessNotWorking = async () => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gLineProcessNotWorking`,
+        `ProductionForm/v1/gLineProcessNotWorking`,
       );
   
       return response.data;
@@ -51,14 +51,14 @@ export const gLineProcess = async () => {
 
 export const gVendor = async () => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gVendor`,
+        `ProductionForm/v1/gVendor`,
       );
   
       return response.data;
@@ -69,14 +69,14 @@ export const gVendor = async () => {
   };
   export const gPreparing = async (lineProcessId) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gPreparing?LineProcessID=${lineProcessId}`,
+        `ProductionForm/v1/gPreparing?LineProcessID=${lineProcessId}`,
       );
   
       return response.data;
@@ -87,14 +87,14 @@ export const gVendor = async () => {
   };
   export const gLineClearance = async (lineProcessId) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gLineClearance?LineProcessID=${lineProcessId}`,
+        `ProductionForm/v1/gLineClearance?LineProcessID=${lineProcessId}`,
       );
   
       return response.data;
@@ -105,14 +105,14 @@ export const gVendor = async () => {
   };
   export const gMaterialMaster = async () => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gMaterialMaster`,
+        `ProductionForm/v1/gMaterialMaster`,
       );
   
       return response.data;
@@ -124,14 +124,14 @@ export const gVendor = async () => {
 
   export const gReasonDetail = async (lineProcessId) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gReasonDetail?LineProcessID=${lineProcessId}`,
+        `ProductionForm/v1/gReasonDetail?LineProcessID=${lineProcessId}`,
       );
   
       return response.data;
@@ -143,14 +143,14 @@ export const gVendor = async () => {
 
   export const gRandomDetect = async (lineProcessId) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gRandomDetect?LineProcessID=${lineProcessId}`,
+        `ProductionForm/v1/gRandomDetect?LineProcessID=${lineProcessId}`,
       );
   
       return response.data;
@@ -162,14 +162,14 @@ export const gVendor = async () => {
 
   export const gTReasonDetail = async (FormID) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gTReasonDetail?FormID=${FormID}`,
+        `ProductionForm/v1/gTReasonDetail?FormID=${FormID}`,
       );
   
       return response.data;
@@ -181,14 +181,14 @@ export const gVendor = async () => {
 
   export const gTLineClearance = async (FormID) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gTLineClearance?FormID=${FormID}`,
+        `ProductionForm/v1/gTLineClearance?FormID=${FormID}`,
       );
   
       return response.data;
@@ -200,14 +200,14 @@ export const gVendor = async () => {
 
   export const gTPreparing = async (FormID) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gTPreparing?FormID=${FormID}`,
+        `ProductionForm/v1/gTPreparing?FormID=${FormID}`,
       );
   
       return response.data;
@@ -236,7 +236,7 @@ export const gVendor = async () => {
       formData.append("UpdateBy", UpdateBy);
   
       // ส่งคำขอ POST พร้อม Bearer Token
-      const response = await api.post(`QA/v1/pUploadFileBatchNo`, formData, {
+      const response = await api.post(`ProductionForm/v1/pUploadFileBatchNo`, formData, {
         headers: {
           "Content-Type": "multipart/form-data", // กำหนด Content-Type
         },
@@ -258,7 +258,7 @@ export const gVendor = async () => {
       }
   
       // ส่งคำขอ DELETE พร้อม Body
-      const response = await api.delete(`QA/v1/pDeleteFileBatchNo`, {
+      const response = await api.delete(`ProductionForm/v1/pDeleteFileBatchNo`, {
         data: deleteFileRequest, // ส่งข้อมูลใน Body
         headers: {
           "Content-Type": "application/json", // กำหนด Content-Type
@@ -280,7 +280,7 @@ export const gVendor = async () => {
       }
   
       // ส่งคำขอ post พร้อม Body
-      const response = await api.post(`QA/v1/pPreparing`, 
+      const response = await api.post(`ProductionForm/v1/pPreparing`, 
         data, // ส่งข้อมูลใน Body
       );
   
@@ -299,7 +299,7 @@ export const gVendor = async () => {
       }
   
       // ส่งคำขอ post พร้อม Body
-      const response = await api.post(`QA/v1/pLineClearance`, 
+      const response = await api.post(`ProductionForm/v1/pLineClearance`, 
          data, // ส่งข้อมูลใน Body 
         );
   
@@ -319,7 +319,7 @@ export const gVendor = async () => {
       }
   
       // ส่งคำขอ post พร้อม Body
-      const response = await api.post(`QA/v1/pFormList`, 
+      const response = await api.post(`ProductionForm/v1/pFormList`, 
         data, // ส่งข้อมูลใน Body
       );
   
@@ -332,14 +332,14 @@ export const gVendor = async () => {
 
   export const gTFormList = async (data) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.post(
-        `QA/v1/gTFormList`, data
+        `ProductionForm/v1/gTFormList`, data
       );
   
       return response.data;
@@ -351,14 +351,14 @@ export const gVendor = async () => {
 
   export const gTFormListById = async (FormID) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gTFormListById?FormID=${FormID}`,
+        `ProductionForm/v1/gTFormListById?FormID=${FormID}`,
       );
   
       return response.data;
@@ -370,14 +370,14 @@ export const gVendor = async () => {
 
   export const gTProductionResult = async (FormID) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gTProductionResult?FormID=${FormID}`,
+        `ProductionForm/v1/gTProductionResult?FormID=${FormID}`,
       );
   
       return response.data;
@@ -395,7 +395,7 @@ export const gVendor = async () => {
       }
   
       // ส่งคำขอ post พร้อม Body
-      const response = await api.post(`QA/v1/pProblemRandomDetect`, 
+      const response = await api.post(`ProductionForm/v1/pProblemRandomDetect`, 
         data, // ส่งข้อมูลใน Body
       );
   
@@ -408,14 +408,14 @@ export const gVendor = async () => {
 
   export const gTProblemRandomDetect = async (FormID) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.get(
-        `QA/v1/gTProblemRandomDetect?FormID=${FormID}`,
+        `ProductionForm/v1/gTProblemRandomDetect?FormID=${FormID}`,
       );
   
       return response.data;
@@ -427,14 +427,14 @@ export const gVendor = async () => {
 
   export const gTProblemRandomDetectWeight = async (data) => {
     try {
-      const accessToken = localStorage.getItem("accessTokenQa");
+      const accessToken = localStorage.getItem("accessTokenProductionForm");
       // ตรวจสอบว่า accessToken มีค่าหรือไม่
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
       // ส่งคำขอ get พร้อมข้อมูลและ Bearer Token
       const response = await api.post(
-        `QA/v1/gTProblemRandomDetectWeight`, data
+        `ProductionForm/v1/gTProblemRandomDetectWeight`, data
       );
   
       return response.data;
@@ -453,7 +453,7 @@ export const gVendor = async () => {
       }
   
       // ส่งคำขอ post พร้อม Body
-      const response = await api.post(`QA/v1/pTProblemRandomDetectWeight`, 
+      const response = await api.post(`ProductionForm/v1/pTProblemRandomDetectWeight`, 
         data, // ส่งข้อมูลใน Body
       );
   
@@ -472,7 +472,7 @@ export const gVendor = async () => {
       }
   
       // ✅ ส่ง HTTP DELETE request พร้อม Body โดยใส่ data ใน config
-      const response = await api.delete(`QA/v1/dTProblemRandomDetectWeight`, {
+      const response = await api.delete(`ProductionForm/v1/dTProblemRandomDetectWeight`, {
         data, // ✅ ใส่ data ใน config ของ axios
       });
   
@@ -491,7 +491,7 @@ export const gVendor = async () => {
       }
   
       // ✅ ส่ง HTTP DELETE request พร้อม Body โดยใส่ data ใน config
-      const response = await api.delete(`QA/v1/dFormList?FormID=${FormID}`);
+      const response = await api.delete(`ProductionForm/v1/dFormList?FormID=${FormID}`);
   
       return response.data; // ✅ ส่งคืนข้อมูลเมื่อสำเร็จ
     } catch (error) {

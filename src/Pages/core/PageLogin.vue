@@ -141,8 +141,8 @@ export default {
             confirmButtonText: "OK",
           }).then(async (result) => {
             if (result.isConfirmed) {
-              localStorage.removeItem("accessTokenQa");
-              localStorage.removeItem("refreshTokenQa");
+              localStorage.removeItem("accessTokenProductionForm");
+              localStorage.removeItem("refreshTokenProductionForm");
               this.$router.push({ name: "Login" });
             }
           });
@@ -170,8 +170,8 @@ export default {
           });
           userStore.setUserReady(true);
           // เก็บ accessToken ใน localStorage สำหรับการตรวจสอบสิทธิ์
-          localStorage.setItem("accessTokenQa", response.accessToken);
-          localStorage.setItem("refreshTokenQa", response.refreshToken);
+          localStorage.setItem("accessTokenProductionForm", response.accessToken);
+          localStorage.setItem("refreshTokenProductionForm", response.refreshToken);
           // เปลี่ยนเส้นทางไปยังหน้าหลัก
           this.$router.push({ name: "ProductionForm" });
         } else {

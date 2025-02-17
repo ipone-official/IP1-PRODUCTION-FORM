@@ -162,7 +162,7 @@ export default {
     logout() {
       // เพิ่มโค้ดการออกจากระบบที่นี่ เช่น เคลียร์ข้อมูลและไปยังหน้าเข้าสู่ระบบ
       this.user.$reset(); // สมมติว่าใช้ Pinia และมีฟังก์ชันรีเซ็ตใน store
-      localStorage.removeItem("accessTokenQa");
+      localStorage.removeItem("accessTokenProductionForm");
       this.$router.push({ name: "Login" });
       this.menu = false; // ปิดเมนูหลังจากคลิก
     },

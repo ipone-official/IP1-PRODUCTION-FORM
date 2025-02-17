@@ -59,13 +59,13 @@ export default {
   async mounted() {
     if (!this.$route.meta.allowAnonymous) {
       // ตรวจสอบว่าหน้านั้นต้องการการล็อกอินหรือไม่
-      if (!localStorage.getItem("accessTokenQa")) {
+      if (!localStorage.getItem("accessTokenProductionForm")) {
         this.$router.push({ name: "Login" });
       } else {
         await this.ValidateJwtToken();
       }
     } else {
-      if (localStorage.getItem("accessTokenQa")) {
+      if (localStorage.getItem("accessTokenProductionForm")) {
         await this.ValidateJwtToken();
         this.$router.push({ name: "ProductionForm" });
       }
@@ -95,7 +95,7 @@ export default {
         if (nameClaim) {
           if (isTokenNearExpiration()) {
             // หาก Token ใกล้หมดอายุ ให้ Renew Token
-            await RenewToken(localStorage.getItem("refreshTokenQa"));
+            await RenewToken(localStorage.getItem("refreshTokenProductionForm"));
           }
           await this.getUser(nameClaim.value);
         } else {
@@ -107,7 +107,7 @@ export default {
             confirmButtonText: "OK",
           }).then(async (result) => {
             if (result.isConfirmed) {
-              localStorage.removeItem("accessTokenQa");
+              localStorage.removeItem("accessTokenProductionForm");
               this.$router.push({ name: "Login" });
             }
           });
@@ -122,8 +122,8 @@ export default {
           confirmButtonText: "OK",
         }).then(async (result) => {
           if (result.isConfirmed) {
-            localStorage.removeItem("accessTokenQa");
-            localStorage.removeItem("refreshTokenQa");
+            localStorage.removeItem("accessTokenProductionForm");
+            localStorage.removeItem("refreshTokenProductionForm");
             this.$router.push({ name: "Login" });
           }
         });
@@ -147,8 +147,8 @@ export default {
             confirmButtonText: "OK",
           }).then(async (result) => {
             if (result.isConfirmed) {
-              localStorage.removeItem("accessTokenQa");
-              localStorage.removeItem("refreshTokenQa");
+              localStorage.removeItem("accessTokenProductionForm");
+              localStorage.removeItem("refreshTokenProductionForm");
               this.$router.push({ name: "Login" });
             }
           });

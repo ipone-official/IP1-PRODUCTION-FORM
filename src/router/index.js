@@ -46,14 +46,14 @@ router.beforeEach(async (to, from, next) => {
     if (!to.meta.allowAnonymous) {
       if (isTokenNearExpiration()) {
         // หาก Token ใกล้หมดอายุ ให้ Renew Token
-        await RenewToken(localStorage.getItem('refreshTokenQa'));
+        await RenewToken(localStorage.getItem('refreshTokenProductionForm'));
       }
     }
     next(); // อนุญาตให้เปลี่ยน Route
   } catch (error) {
     console.error('Error during token renewal:', error);
-    localStorage.removeItem('accessTokenQa');
-    localStorage.removeItem('refreshTokenQa');
+    localStorage.removeItem('accessTokenProductionForm');
+    localStorage.removeItem('refreshTokenProductionForm');
     next({ name: 'Login' }); // ส่งกลับหน้า Login
   }
 });
