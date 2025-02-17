@@ -217,9 +217,7 @@
               <v-col
                 cols="12"
                 md="2"
-                v-if="
-                  (managerEdit && mSelectedReqQa.status == 'WaitApproved') || adminEdit
-                "
+                v-if="(managerEdit && mSelectedReqQa.status !== 'Completed') || adminEdit"
               >
                 <v-btn
                   color="success"
@@ -235,7 +233,9 @@
                 cols="12"
                 md="2"
                 v-if="
-                  (supervisorEdit && mSelectedReqQa.status == 'WaitConfirm') || adminEdit
+                  (supervisorEdit &&
+                    !['WaitApproved', 'Completed'].includes(mSelectedReqQa.status)) ||
+                  adminEdit
                 "
               >
                 <v-btn
@@ -1115,7 +1115,12 @@
                                         color="primary"
                                         block
                                         @click="selectAllVerifyProduct('Y')"
-                                        :readonly="!operatorEdit || !flagEdit"
+                                        :readonly="
+                                          (!operatorEdit || !flagEdit) &&
+                                          !supervisorEdit &&
+                                          !managerEdit &&
+                                          !adminEdit
+                                        "
                                       >
                                         ผ่าน ทั้งหมด
                                       </v-btn>
@@ -1130,7 +1135,12 @@
                                         color="red"
                                         block
                                         @click="selectAllVerifyProduct('N')"
-                                        :readonly="!operatorEdit || !flagEdit"
+                                        :readonly="
+                                          (!operatorEdit || !flagEdit) &&
+                                          !supervisorEdit &&
+                                          !managerEdit &&
+                                          !adminEdit
+                                        "
                                       >
                                         ไม่ผ่าน ทั้งหมด
                                       </v-btn>
@@ -1230,7 +1240,12 @@
                                             variant="text"
                                             v-bind="props"
                                             @click="plusWeight"
-                                            :readonly="!operatorEdit || !flagEdit"
+                                            :readonly="
+                                              (!operatorEdit || !flagEdit) &&
+                                              !supervisorEdit &&
+                                              !managerEdit &&
+                                              !adminEdit
+                                            "
                                           >
                                             <v-icon color="primary"
                                               >mdi-plus-circle-outline</v-icon
