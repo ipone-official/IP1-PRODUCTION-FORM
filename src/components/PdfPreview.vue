@@ -14,7 +14,7 @@
 
       <div class="pdf-container">
         <div v-if="error" class="error-message">⚠️ ไม่สามารถโหลดไฟล์ PDF ได้</div>
-        <div v-else v-for="(canvas, index) in pdfCanvases" :key="index">
+        <div v-else v-for="(page, index) in numPages" :key="index">
           <canvas :ref="(el) => (pdfCanvases[index] = el)"></canvas>
         </div>
       </div>
@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, nextTick } from "vue";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import { saveAs } from "file-saver";
 
@@ -41,7 +41,8 @@ export default {
     const error = ref(false);
     const pdfCanvases = ref([]); // เก็บ <canvas> แต่ละหน้า
     const numPages = ref(0);
-    const scale = ref(2.0); // ✅ ปรับค่า scale ให้ใหญ่ขึ้น (ค่าเดิมคือ 1.5)
+    const pdfInstance = ref(null); // ✅ เก็บ PDF Object เพื่อไม่ให้โหลดซ้ำ
+    const scale = ref(2.0); // ✅ ปรับค่า scale ให้ใหญ่ขึ้น
 
     const pdfSrc = ref(
       "https://portal.ip-one.com/Web-Production-Form/UserManual/ProductionForm.pdf"
@@ -58,20 +59,23 @@ export default {
     const loadPdf = async () => {
       error.value = false;
       try {
-        const loadingTask = getDocument(pdfSrc.value);
-        const pdf = await loadingTask.promise;
-        numPages.value = pdf.numPages;
+        if (!pdfInstance.value) {
+          const loadingTask = getDocument(pdfSrc.value);
+          pdfInstance.value = await loadingTask.promise;
+        }
+
+        numPages.value = pdfInstance.value.numPages;
+
+        await nextTick(); // ✅ ให้ Vue อัปเดต DOM ก่อนวาด PDF
 
         for (let i = 1; i <= numPages.value; i++) {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: scale.value }); // ✅ ใช้ scale ที่ใหญ่ขึ้น
+          const page = await pdfInstance.value.getPage(i);
+          const viewport = page.getViewport({ scale: scale.value });
 
-          // หา canvas ตาม index ที่ถูกต้อง
           if (pdfCanvases.value[i - 1]) {
             const canvas = pdfCanvases.value[i - 1];
             const context = canvas.getContext("2d");
 
-            // ✅ ปรับขนาด canvas ตาม scale
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
@@ -93,15 +97,15 @@ export default {
 
     watch(
       () => props.modelValue,
-      (newVal) => {
+      async (newVal) => {
         dialog.value = newVal;
         if (newVal) {
-          loadPdf();
+          await loadPdf();
         }
       }
     );
 
-    return { dialog, pdfCanvases, close, downloadPDF, error };
+    return { dialog, pdfCanvases, close, downloadPDF, error, numPages };
   },
 };
 </script>
