@@ -538,8 +538,27 @@
                                     </v-radio-group>
                                   </v-col>
                                 </v-row>
+                                <v-col cols="12" md="12" v-if="mcMaterial.length != 0">
+                                  <v-textarea
+                                    v-model="mRemarkClearance"
+                                    label="อื่น ๆ / เพิ่มเติม"
+                                    variant="outlined"
+                                    rows="2"
+                                    prepend-inner-icon="mdi-file-document-edit-outline"
+                                    class="input-field"
+                                    maxlength="255"
+                                    :readonly="
+                                      !operatorEdit &&
+                                      !supervisorEdit &&
+                                      !managerEdit &&
+                                      !adminEdit &&
+                                      !flagCreate
+                                    "
+                                  ></v-textarea>
+                                </v-col>
                               </div>
                             </v-col>
+
                             <!-- Right Panel -->
                             <v-col cols="12" md="6">
                               <div class="panel right-panel">
@@ -1220,10 +1239,13 @@
                                         class="input-field"
                                         type="text"
                                         @input="updateWeight"
-                                        :readonly="(!operatorEdit || !flagEdit) &&
-                                              !supervisorEdit &&
-                                              !managerEdit &&
-                                              !adminEdit"
+                                        @keyup.enter="plusWeight"
+                                        :readonly="
+                                          (!operatorEdit || !flagEdit) &&
+                                          !supervisorEdit &&
+                                          !managerEdit &&
+                                          !adminEdit
+                                        "
                                       >
                                         <template v-slot:label>
                                           <span style="color: red">*</span>น้ำหนัก
@@ -1281,10 +1303,12 @@
                                                 variant="text"
                                                 v-bind="props"
                                                 @click="deleteItemWeight(item)"
-                                                :readonly="(!operatorEdit || !flagEdit) &&
-                                              !supervisorEdit &&
-                                              !managerEdit &&
-                                              !adminEdit"
+                                                :readonly="
+                                                  (!operatorEdit || !flagEdit) &&
+                                                  !supervisorEdit &&
+                                                  !managerEdit &&
+                                                  !adminEdit
+                                                "
                                               >
                                                 <v-icon color="red">mdi-delete</v-icon>
                                               </v-btn>
@@ -1778,6 +1802,7 @@ export default {
       mWeight: "",
       mFilterStatus: null,
       mFilterLineProcess: null,
+      mRemarkClearance: "",
     };
   },
   created() {
@@ -3048,6 +3073,7 @@ export default {
       this.mProductionDate = item.productionDate;
       this.mInspectionDate = item.checkIN;
       this.mProblemResolve = item.remark;
+      this.mRemarkClearance = item.remarkClearance;
     },
     closeSearch() {
       this.sDisabledDate = false;
@@ -3074,6 +3100,7 @@ export default {
       this.mcMaterial = "";
       this.mMaterial = "";
       this.mProblemResolve = "";
+      this.mRemarkClearance = "";
       this.mVendor = "";
       this.mReasonDetail = "";
       this.mReasonDetailItem = "";
@@ -3213,6 +3240,7 @@ export default {
               ? this.mSelectedReqQa.status
               : flagStatus,
           remark: this.mProblemResolve,
+          remarkClearance: this.mRemarkClearance,
           employeeID: this.user.empId,
         };
         const response = await pFormList(init);
