@@ -1,4 +1,5 @@
 import { createVuetify } from 'vuetify';
+import { th } from 'vuetify/locale'; 
 import 'vuetify/styles';
 import { aliases, mdi } from 'vuetify/iconsets/mdi';
 
@@ -6,6 +7,11 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 
 export default createVuetify({
+  locale: {
+    locale: 'th',  // กำหนดค่าเริ่มต้นเป็นภาษาไทย
+    fallback: 'en', // กรณีที่ไม่มีข้อมูลภาษาไทย
+    messages: { th }, // ใช้ค่า locale ภาษาไทยที่ Vuetify รองรับ
+  },
   theme: {
     defaultTheme: 'myCustomTheme', // กำหนดชื่อธีมเป็น myCustomTheme
     themes: {

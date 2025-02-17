@@ -7,7 +7,7 @@
         transition="scale-transition"
         offset-y
         full-width
-       :disabled="disabled"
+        :disabled="disabled"
       >
         <template #activator="{ props }">
           <v-text-field
@@ -41,11 +41,11 @@ export default {
   props: {
     modelValue: {
       type: [String, Number],
-      default: null, // ค่าเริ่มต้นในรูปแบบ yyyyMMdd
+      default: null,
     },
     disabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     label: {
       type: String,
@@ -55,7 +55,7 @@ export default {
   emits: ["update:modelValue"],
   setup(props, { emit }) {
     const menu = ref(false);
-    const internalDate = ref(null); // ใช้ภายใน Component
+    const internalDate = ref(null);
     const displayDate = ref("");
 
     const maxDate = computed(() => new Date().toISOString().split("T")[0]);
