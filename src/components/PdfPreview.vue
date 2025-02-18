@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="dialog" fullscreen persistent hide-overlay>
-    <v-container fluid>
+    <v-container fluid class="pdf-container">
       <v-toolbar color="primary" dense>
         <v-btn icon @click="close">
           <v-icon>mdi-keyboard-backspace</v-icon>
@@ -12,9 +12,14 @@
         </v-btn>
       </v-toolbar>
 
-      <div class="pdf-container">
+      <div class="pdf-viewer">
         <div v-if="error" class="error-message">⚠️ ไม่สามารถโหลดไฟล์ PDF ได้</div>
-        <div v-else v-for="(page, index) in numPages" :key="index">
+        <div
+          v-else
+          v-for="(canvas, index) in pdfCanvases"
+          :key="index"
+          class="canvas-container"
+        >
           <canvas :ref="(el) => (pdfCanvases[index] = el)"></canvas>
         </div>
       </div>
@@ -24,6 +29,7 @@
 
 <script>
 import { ref, onMounted, watch, nextTick } from "vue";
+import axios from "axios";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import { saveAs } from "file-saver";
 
@@ -59,11 +65,13 @@ export default {
     const loadPdf = async () => {
       error.value = false;
       try {
-        if (!pdfInstance.value) {
-          const loadingTask = getDocument(pdfSrc.value);
-          pdfInstance.value = await loadingTask.promise;
-        }
+        // ✅ ใช้ axios โหลด PDF
+        const response = await axios.get(pdfSrc.value, { responseType: "arraybuffer" });
+        const pdfData = new Uint8Array(response.data);
 
+        // ✅ โหลด PDF จาก memory
+        const loadingTask = getDocument({ data: pdfData });
+        pdfInstance.value = await loadingTask.promise;
         numPages.value = pdfInstance.value.numPages;
 
         await nextTick(); // ✅ ให้ Vue อัปเดต DOM ก่อนวาด PDF
@@ -76,8 +84,11 @@ export default {
             const canvas = pdfCanvases.value[i - 1];
             const context = canvas.getContext("2d");
 
+            // ✅ ปรับขนาด canvas ให้เต็มจอ
             canvas.width = viewport.width;
             canvas.height = viewport.height;
+            canvas.style.width = "100%";
+            canvas.style.height = "auto";
 
             const renderContext = { canvasContext: context, viewport: viewport };
             await page.render(renderContext).promise;
@@ -111,19 +122,42 @@ export default {
 </script>
 
 <style scoped>
+/* ✅ ปรับ PDF ให้เต็มจอ และเลื่อนดูได้ */
 .pdf-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  background-color: #f4f4f4;
+  padding-bottom: 20px;
 }
+
+.pdf-viewer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.canvas-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
 canvas {
   border: 1px solid #ccc;
-  margin-bottom: 10px;
+  max-width: 100%;
+  height: auto;
 }
+
 .error-message {
   color: red;
   text-align: center;
   font-size: 18px;
+  padding: 20px;
 }
 </style>
