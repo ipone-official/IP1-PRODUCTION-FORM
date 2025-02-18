@@ -51,7 +51,14 @@
     <div class="footer">
       <v-divider></v-divider>
       <div class="menu-container">
-        <v-list-item style="background-color: #007fc4" class="menu-item" dense @click="showPdfPreview = true" rounded="shaped" value="UserManual">
+        <v-list-item
+          style="background-color: #007fc4"
+          class="menu-item"
+          dense
+          @click="showPdfPreview = true"
+          rounded="shaped"
+          value="UserManual"
+        >
           <v-list-item-title class="menu-title">
             <v-icon>mdi-book-open-variant-outline</v-icon>
             User Manual

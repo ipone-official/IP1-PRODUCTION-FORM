@@ -14,11 +14,11 @@
     "html2canvas": "^1.4.1",
     "install": "^0.13.0",
     "npm": "^10.9.0",
-    "pdfjs-dist": "^2.16.105",
     "pinia": "^2.2.6",
     "sweetalert2": "^11.6.13",
     "vue": "^3.2.13",
     "vue-gtag": "^2.0.1",
+    "vue-pdf-embed": "^2.1.2",
     "vue-router": "^4.4.5",
     "vuetify": "^3.7.3"
   },
