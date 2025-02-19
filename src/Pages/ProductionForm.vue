@@ -1010,23 +1010,33 @@
                                 <v-dialog
                                   v-model="dialogNotification"
                                   class="dialog-width-noti"
+                                  transition="dialog-bottom-transition"
+                                  content-class="dialog-container"
                                 >
                                   <v-card
                                     class="elevation-10"
-                                    style="border-radius: 16px; overflow: hidden"
+                                    style="
+                                      border-radius: 16px;
+                                      overflow: hidden dialog-content;
+                                    "
                                   >
                                     <!-- สไลด์แสดงรูปภาพ -->
-                                    <v-carousel hide-delimiters cycle :interval="5000">
+                                    <v-carousel
+                                      hide-delimiters
+                                      cycle
+                                      :interval="5000"
+                                      show-arrows="hover"
+                                    >
                                       <v-carousel-item
                                         v-for="(image, index) in imagesNotification"
                                         :key="index"
                                       >
-                                        <div>
-                                          <img
+                                        <div class="carousel-wrapper">
+                                          <v-img
                                             :src="image"
                                             alt="Slide Image"
                                             class="carousel-image"
-                                          />
+                                          ></v-img>
                                         </div>
                                       </v-carousel-item>
                                     </v-carousel>
@@ -3579,24 +3589,59 @@ export default {
 .dialog-width-noti {
   max-width: 50%; /* กำหนดความกว้างของ dialog */
 }
-
-.carousel-image {
-  width: 100%; /* รูปภาพเต็มความกว้างของ container */
-  height: 100%; /* รูปภาพเต็มความสูงของ container */
-  object-fit: cover; /* ปรับให้รูปภาพเติมพื้นที่ container */
-  border-radius: 8px; /* มุมโค้งของรูปภาพ */
-  padding: 2rem;
+/* ทำให้ v-dialog อยู่ตรงกลาง */
+.dialog-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
-@media screen and (max-width: 600px) {
-  .dialog-width-noti {
-    max-width: 100%; /* ลดความกว้าง dialog สำหรับหน้าจอมือถือ */
-  }
+/* ปรับขนาดของ v-card ภายใน dialog */
+.dialog-content {
+  width: 80vw;
+  max-width: 900px;
+  max-height: 85vh;
+  background: white;
+  padding: 20px;
+}
 
-  .carousel-image {
-    max-width: 100%; /* จำกัดความกว้าง */
-    max-height: 100%; /* จำกัดความสูง */
-    object-fit: contain; /* รักษาสัดส่วนของภาพ */
+/* ป้องกันรูปภาพและเนื้อหาติดขอบ */
+.carousel-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-image {
+  width: 100%;
+  height: auto;
+  max-height: 600px;
+  object-fit: contain;
+}
+
+/* ปรับขนาดให้รองรับทุกอุปกรณ์ */
+@media (max-width: 1024px) {
+  .dialog-content {
+    width: 90vw;
+    max-width: 750px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dialog-content {
+    width: 95vw;
+    max-width: 600px;
+  }
+  .dialog-width-noti {
+    max-width: 100%; /* กำหนดความกว้างของ dialog */
   }
 }
 
