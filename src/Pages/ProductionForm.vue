@@ -1850,7 +1850,7 @@ export default {
       mFilterLineProcess: null,
       mRemarkClearance: "",
       dialogNotification: false,
-      imagesNotification: [require("@/assets/images/I.P. Portal 2025.png")],
+      imagesNotification: [require("@/assets/images/remark.png")],
     };
   },
   created() {
@@ -3585,6 +3585,7 @@ export default {
   height: 100%; /* รูปภาพเต็มความสูงของ container */
   object-fit: cover; /* ปรับให้รูปภาพเติมพื้นที่ container */
   border-radius: 8px; /* มุมโค้งของรูปภาพ */
+  padding: 2rem;
 }
 
 @media screen and (max-width: 600px) {
